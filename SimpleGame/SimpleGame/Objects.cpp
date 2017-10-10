@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Objects.h"
+#include "Renderer.h"
 
 
 Objects::Objects() : m_Pos(0, 0, 0), m_Size(0), m_Weight(0), m_Color(0, 0, 0, 0),
@@ -13,11 +14,15 @@ Objects::Objects(float x, float y, float z, float r, float g, float b, float a, 
 		m_Live(true), m_moveDir(mx, my, mz), m_moveSpeed(speed)
 {
 	m_Name = name;
+	/*m_Name = new char[namebuff];
+	strncpy(m_Name, name, namebuff);*/
 }
 Objects::Objects(float3 pos, float4 color, float size, float weight, char* name, float3 dir, float speed) :
 	m_Pos(pos), m_Color(color), m_Size(size), m_Weight(weight), m_Live(true), m_moveDir(dir), m_moveSpeed(speed)
 {
 	m_Name = name;
+	/*m_Name = new char[namebuff];
+	strncpy(m_Name, name, namebuff);*/
 }
 
 Objects::~Objects()
@@ -91,7 +96,9 @@ void Objects::OnPrepareRender()
 
 }
 
-void Objects::Render()
+void Objects::Render(Renderer& g_Renderer)
 {
 	OnPrepareRender();
+	g_Renderer.DrawSolidRect(m_Pos.x, m_Pos.y, m_Pos.z, m_Size, 
+		m_Color.x, m_Color.y, m_Color.z, m_Color.w);
 }

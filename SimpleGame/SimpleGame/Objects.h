@@ -3,6 +3,8 @@
 
 const int namebuff = 10;
 
+class Renderer;
+
 struct float3
 {
 	float x, y, z;
@@ -94,5 +96,5 @@ public:
 
 	virtual void Animate();					//상호작용
 	virtual void OnPrepareRender();		//랜더링 전에 동작해야 할 것들
-	virtual void Render();					//랜더링
+	virtual void Render(Renderer& renderer);					//랜더링
 };
