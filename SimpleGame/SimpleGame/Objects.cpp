@@ -70,25 +70,28 @@ void Objects::setMoveDir(float3 moveDir)
 
 void Objects::Move()
 {
-	float3 moveValue = m_moveDir*m_moveSpeed;
+	float3 moveValue = m_moveDir;
+	moveValue*m_moveSpeed;
 	m_Pos += moveValue;
+	//printf("%f %f %f\n", m_Pos.x, m_Pos.y, m_Pos.z);
 }
 
-void Objects::Move(float fDist)
+void Objects::Move(float3 moveValue)
 {
-	float3 moveValue = m_moveDir*fDist;
-	m_Pos += moveValue;
-}
-
-void Objects::Move(float3 dir, float fDist)
-{
-	float3 moveValue = dir*fDist;
 	m_Pos += moveValue;
 }
 
 void Objects::Animate()
 {
 
+}
+
+void Objects::CrashCheck()
+{
+	if (m_Pos.x<-WindowWidth / 2 || m_Pos.x>WindowWidth/2)
+		m_moveDir.x *= -1;
+	if (m_Pos.y<-WindowHeight / 2 || m_Pos.y>WindowHeight/2)
+		m_moveDir.y *= -1;
 }
 
 void Objects::OnPrepareRender()
@@ -101,4 +104,11 @@ void Objects::Render(Renderer& g_Renderer)
 	OnPrepareRender();
 	g_Renderer.DrawSolidRect(m_Pos.x, m_Pos.y, m_Pos.z, m_Size, 
 		m_Color.x, m_Color.y, m_Color.z, m_Color.w);
+}
+
+void Objects::Update()
+{
+	Animate();
+	CrashCheck();
+	Move();
 }

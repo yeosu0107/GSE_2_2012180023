@@ -1,0 +1,14 @@
+.vs/
+*.aps/
+*.ico
+*.rc
+*.vcproj
+*.vcxproj
+*.filters
+*.user
+*.tlog
+*.idb
+*.obj
+*.pdb
+*.ilk
+*.exe

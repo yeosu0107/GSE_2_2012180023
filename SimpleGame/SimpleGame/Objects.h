@@ -23,7 +23,7 @@ struct float3
 		z = z - num.z;
 		return float3(x, y, z);
 	}
-	float3 operator*(const float& num) {
+	float3 operator*(const float num) {
 		x *= num;
 		y *= num;
 		z *= num;
@@ -91,10 +91,12 @@ public:
 
 	//오브젝트 제어
 	void Move();								//이동방향으로 이동속도만큼 이동
-	void Move(float fDist = 1.0f);		//이동방향으로 fDist만큼 이동
-	void Move(float3 dir, float fDist = 1.0f);	//dir방향으로 fDist만큼 이동
+	void Move(float3 moveValue);		//속도벡터만큼 이동
+	virtual void Animate();					//애니메이트
+	virtual void CrashCheck();				//충돌체크
 
-	virtual void Animate();					//상호작용
 	virtual void OnPrepareRender();		//랜더링 전에 동작해야 할 것들
 	virtual void Render(Renderer& renderer);					//랜더링
+
+	virtual void Update();					//업데이트
 };

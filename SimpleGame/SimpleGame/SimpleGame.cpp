@@ -10,6 +10,7 @@ but WITHOUT ANY WARRANTY.
 
 #include "stdafx.h"
 #include <iostream>
+#include <vector>
 #include "Dependencies\glew.h"
 #include "Dependencies\freeglut.h"
 
@@ -17,37 +18,52 @@ but WITHOUT ANY WARRANTY.
 #include "Objects.h"
 
 Renderer *g_Renderer = NULL;
-Objects   *g_Object = NULL;
+std::vector<Objects*> g_Objects;
 
 void RenderScene(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0f, 0.3f, 0.3f, 1.0f);
 
-	// Renderer Test
-	//g_Renderer->DrawSolidRect(0, 0, 0, 4, 1, 0, 1, 1);
-	g_Object->Render(*g_Renderer);
+	/*g_Object->Update();
+	g_Object->Render(*g_Renderer);*/
+	for (Objects* object : g_Objects) {
+		object->Update();
+		object->Render(*g_Renderer);
+	}
+
 	glutSwapBuffers();
 }
 
 void Idle(void)
 {
+	//g_Object->Update();
+	for (Objects* object : g_Objects) {
+		object->Update();
+	}
 	RenderScene();
 }
 
 void MouseInput(int button, int state, int x, int y)
 {
-	RenderScene();
+	//RenderScene();
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+		int xPos = x-WindowWidth / 2;
+		int yPos = WindowHeight / 2-y;
+		Objects   *g_Object = nullptr;
+		g_Object = new Objects(xPos, yPos, 0, 1, 0, 0, 1, 10, 1, "임시", 1, 1, 0, 0.1f);
+		g_Objects.emplace_back(g_Object);
+	}
 }
 
 void KeyInput(unsigned char key, int x, int y)
 {
-	RenderScene();
+	//RenderScene();
 }
 
 void SpecialKeyInput(int key, int x, int y)
 {
-	RenderScene();
+	//RenderScene();
 }
 
 int main(int argc, char **argv)
@@ -56,7 +72,7 @@ int main(int argc, char **argv)
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(0, 0);
-	glutInitWindowSize(500, 500);
+	glutInitWindowSize(WindowWidth, WindowHeight);
 	glutCreateWindow("Game Software Engineering KPU");
 
 	glewInit();
@@ -70,13 +86,13 @@ int main(int argc, char **argv)
 	}
 
 	// Initialize Renderer
-	g_Renderer = new Renderer(500, 500);
+	g_Renderer = new Renderer(WindowWidth, WindowHeight);
 	if (!g_Renderer->IsInitialized())
 	{
 		std::cout << "Renderer could not be initialized.. \n";
 	}
 
-	g_Object = new Objects(0, 0, 0, 1, 0, 0, 1, 10, 1, "임시", 0, 0, 0, 0);
+	//g_Object = new Objects(100, -30, 0, 1, 0, 0, 1, 10, 1, "임시", 1, 1, 0, 0.1f);
 
 	glutDisplayFunc(RenderScene);
 	glutIdleFunc(Idle);
@@ -87,7 +103,7 @@ int main(int argc, char **argv)
 	glutMainLoop();
 
 	delete g_Renderer;
-
+	g_Objects.clear();
     return 0;
 }
 
