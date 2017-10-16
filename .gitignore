@@ -1,14 +1,10 @@
 .vs/
-*.aps/
-*.ico
-*.rc
-*.vcproj
-*.vcxproj
-*.filters
-*.user
+*.log
 *.tlog
 *.idb
 *.obj
 *.pdb
 *.ilk
 *.exe
+*.opendb
+*.pch
