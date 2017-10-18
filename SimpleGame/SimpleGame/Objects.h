@@ -5,39 +5,6 @@ const int namebuff = 10;
 
 class Renderer;
 
-struct float3
-{
-	float x, y, z;
-	float3(float a, float b, float c) {
-		x = a; y = b; z = c;
-	}
-	float3 operator+=(const float3& num) {
-		x = x + num.x;
-		y = y + num.y;
-		z = z + num.z;
-		return float3(x, y, z);
-	}
-	float3 operator-=(const float3& num) {
-		x = x - num.x;
-		y = y - num.y;
-		z = z - num.z;
-		return float3(x, y, z);
-	}
-	float3 operator*(const float num) {
-		x *= num;
-		y *= num;
-		z *= num;
-		return float3(x, y, z);
-	}
-};
-
-struct float4
-{
-	float x, y, z, w;
-	float4(float a, float b, float c, float d) {
-		x = a; y = b; z = c; w = d;
-	}
-};
 
 class Objects
 {
@@ -53,7 +20,9 @@ protected:
 	float3 m_moveDir;		//이동방향 (x,y,z)
 	float m_moveSpeed;	//이동속도
 
-	
+	bool now_crash;
+	OOBB* m_oobb = nullptr;;
+
 public:
 	Objects();
 	Objects(float x, float y, float z, float r, float g, float b, float a, float size, float weight, 
@@ -88,6 +57,8 @@ public:
 
 	float getSpeed() const { return m_moveSpeed; }
 	float3 getMoveDir() const { return m_moveDir; }
+
+	OOBB* getOOBB() const { return m_oobb; }
 
 	//오브젝트 제어
 	void Move();								//이동방향으로 이동속도만큼 이동

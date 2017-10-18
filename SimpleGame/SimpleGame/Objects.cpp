@@ -7,6 +7,8 @@ Objects::Objects() : m_Pos(0, 0, 0), m_Size(0), m_Weight(0), m_Color(0, 0, 0, 0)
 	m_Live(true), m_moveDir(0,0,0), m_moveSpeed(0)
 {
 	m_Name = new char[namebuff];
+	now_crash = false;
+	m_oobb = new OOBB(m_Pos, m_Size);
 }
 
 Objects::Objects(float x, float y, float z, float r, float g, float b, float a, float size, float weight,
@@ -14,6 +16,8 @@ Objects::Objects(float x, float y, float z, float r, float g, float b, float a, 
 		m_Live(true), m_moveDir(mx, my, mz), m_moveSpeed(speed)
 {
 	m_Name = name;
+	now_crash = false;
+	m_oobb = new OOBB(m_Pos, m_Size);
 	/*m_Name = new char[namebuff];
 	strncpy(m_Name, name, namebuff);*/
 }
@@ -21,6 +25,8 @@ Objects::Objects(float3 pos, float4 color, float size, float weight, char* name,
 	m_Pos(pos), m_Color(color), m_Size(size), m_Weight(weight), m_Live(true), m_moveDir(dir), m_moveSpeed(speed)
 {
 	m_Name = name;
+	now_crash = false;
+	m_oobb = new OOBB(m_Pos, m_Size);
 	/*m_Name = new char[namebuff];
 	strncpy(m_Name, name, namebuff);*/
 }
@@ -70,9 +76,9 @@ void Objects::setMoveDir(float3 moveDir)
 
 void Objects::Move()
 {
-	float3 moveValue = m_moveDir;
-	moveValue*m_moveSpeed;
+	float3 moveValue = m_moveDir*m_moveSpeed;
 	m_Pos += moveValue;
+	
 	//printf("%f %f %f\n", m_Pos.x, m_Pos.y, m_Pos.z);
 }
 
@@ -101,14 +107,19 @@ void Objects::OnPrepareRender()
 
 void Objects::Render(Renderer& g_Renderer)
 {
-	OnPrepareRender();
-	g_Renderer.DrawSolidRect(m_Pos.x, m_Pos.y, m_Pos.z, m_Size, 
-		m_Color.x, m_Color.y, m_Color.z, m_Color.w);
+	if (m_Live) {
+		OnPrepareRender();
+		g_Renderer.DrawSolidRect(m_Pos.x, m_Pos.y, m_Pos.z, m_Size,
+			m_Color.x, m_Color.y, m_Color.z, m_Color.w);
+	}
 }
 
 void Objects::Update()
 {
-	Animate();
-	CrashCheck();
-	Move();
+	if (m_Live) {
+		m_oobb->refrash(m_Pos);
+		Animate();
+		CrashCheck();
+		Move();
+	}
 }

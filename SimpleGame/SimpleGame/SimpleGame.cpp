@@ -15,55 +15,53 @@ but WITHOUT ANY WARRANTY.
 #include "Dependencies\freeglut.h"
 
 #include "Renderer.h"
-#include "Objects.h"
+#include "SceneMgr.h"
 
-Renderer *g_Renderer = NULL;
-std::vector<Objects*> g_Objects;
+Renderer* g_Renderer = NULL;
+SceneMgr scene;
+bool g_LButtonDown = false;
 
 void RenderScene(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0f, 0.3f, 0.3f, 1.0f);
 
-	/*g_Object->Update();
-	g_Object->Render(*g_Renderer);*/
-	for (Objects* object : g_Objects) {
-		object->Update();
-		object->Render(*g_Renderer);
-	}
-
+	scene.Update();
+	scene.Render(*g_Renderer);
 	glutSwapBuffers();
 }
 
 void Idle(void)
 {
-	//g_Object->Update();
-	for (Objects* object : g_Objects) {
-		object->Update();
-	}
+	scene.BuildObjects();
 	RenderScene();
 }
 
 void MouseInput(int button, int state, int x, int y)
 {
-	//RenderScene();
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+		g_LButtonDown = true;
+	}
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
-		int xPos = x-WindowWidth / 2;
-		int yPos = WindowHeight / 2-y;
-		Objects   *g_Object = nullptr;
-		g_Object = new Objects(xPos, yPos, 0, 1, 0, 0, 1, 10, 1, "юс╫ц", 1, 1, 0, 0.1f);
-		g_Objects.emplace_back(g_Object);
+		if (g_LButtonDown) {
+			int xPos = x - WindowWidth / 2;
+			int yPos = WindowHeight / 2 - y;
+
+			scene.Add(xPos, yPos);
+
+			g_LButtonDown = false;
+		}
 	}
 }
 
 void KeyInput(unsigned char key, int x, int y)
 {
-	//RenderScene();
+
 }
 
 void SpecialKeyInput(int key, int x, int y)
 {
-	//RenderScene();
+
 }
 
 int main(int argc, char **argv)
@@ -103,7 +101,7 @@ int main(int argc, char **argv)
 	glutMainLoop();
 
 	delete g_Renderer;
-	g_Objects.clear();
+
     return 0;
 }
 
