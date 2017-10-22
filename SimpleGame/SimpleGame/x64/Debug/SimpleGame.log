@@ -1,2 +1,13 @@
-﻿  SimpleGame.vcxproj -> C:\Users\성우\Documents\Visual Studio 2017\Projects\GSE_2_2012180023\SimpleGame\x64\Debug\SimpleGame.exe
-  SimpleGame.vcxproj -> C:\Users\성우\Documents\Visual Studio 2017\Projects\GSE_2_2012180023\SimpleGame\x64\Debug\SimpleGame.pdb (Partial PDB)
+﻿  Objects.cpp
+  코드를 생성하고 있습니다...
+  컴파일하고 있습니다...
+  SceneMgr.cpp
+c:\users\yeosu\documents\visual studio 2017\projects\gse_2_2012180023\simplegame\simplegame\scenemgr.cpp(16): warning C4156: 'delete' 배열 형식을 사용하지 않고 배열 식을 삭제했습니다. 배열 형식이 대체됩니다.
+c:\users\yeosu\documents\visual studio 2017\projects\gse_2_2012180023\simplegame\simplegame\scenemgr.cpp(16): warning C4154: 배열 식을 삭제했습니다. 포인터로 변환이 제공됩니다.
+c:\users\yeosu\documents\visual studio 2017\projects\gse_2_2012180023\simplegame\simplegame\scenemgr.cpp(73): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\yeosu\documents\visual studio 2017\projects\gse_2_2012180023\simplegame\simplegame\scenemgr.cpp(74): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  코드를 생성하고 있습니다...
+  건너뛰고 있습니다... (관련된 변경 내용 없음)
+  SimpleGame.cpp
+  SimpleGame.vcxproj -> C:\Users\yeosu\Documents\Visual Studio 2017\Projects\GSE_2_2012180023\SimpleGame\x64\Debug\SimpleGame.exe
+  SimpleGame.vcxproj -> C:\Users\yeosu\Documents\Visual Studio 2017\Projects\GSE_2_2012180023\SimpleGame\x64\Debug\SimpleGame.pdb (Partial PDB)

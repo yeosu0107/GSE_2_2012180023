@@ -26,11 +26,23 @@ void SceneMgr::BuildObjects() {
 
 void SceneMgr::Collision() {
 	for (int i = 0; i < MAX_OBJECT_COUNT; ++i) {
+		if (!m_Objects[i])
+			continue;
+		m_Objects[i]->setCollisionCheck(false);
+	}
+	for (int i = 0; i < MAX_OBJECT_COUNT; ++i) {
 		for (int j = 0; j < MAX_OBJECT_COUNT; ++j) {
-			if (i == j || !m_Objects[i] || !m_Objects[j])
+			if ( i == j || !m_Objects[i] || !m_Objects[j]
+				||m_Objects[i]->getNowCollision() )
 				continue;
+
 			if (m_Objects[i]->getOOBB()->collision(*m_Objects[j]->getOOBB())) {
-				printf("Crash! %d %d\n", i, j);
+				m_Objects[i]->setCollisionCheck(true);
+				m_Objects[j]->setCollisionCheck(true);
+
+				m_Objects[i]->ColorChange();
+				m_Objects[j]->ColorChange();
+				//printf("Crash! %d %d\n", i, j);
 			}
 		}
 	}

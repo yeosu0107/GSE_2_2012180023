@@ -23,6 +23,8 @@ protected:
 	bool now_crash;
 	OOBB* m_oobb = nullptr;;
 
+	float colorvar = 0.1f;
+
 public:
 	Objects();
 	Objects(float x, float y, float z, float r, float g, float b, float a, float size, float weight, 
@@ -59,12 +61,24 @@ public:
 	float3 getMoveDir() const { return m_moveDir; }
 
 	OOBB* getOOBB() const { return m_oobb; }
+	bool getNowCollision()const { return now_crash; }
 
 	//오브젝트 제어
 	void Move();								//이동방향으로 이동속도만큼 이동
 	void Move(float3 moveValue);		//속도벡터만큼 이동
+	
+	void ColorChange() {
+		if (m_Color.x < 0 || m_Color.x>1)
+			colorvar *= -1;
+		m_Color.x += colorvar;
+		m_Color.y += colorvar;
+		m_Color.z += colorvar;
+		m_Color.w += colorvar;
+	}
+
 	virtual void Animate();					//애니메이트
 	virtual void CrashCheck();				//충돌체크
+	void setCollisionCheck(bool tmp) { now_crash = tmp; } //충돌체크 루틴에서 제외를 위해 설정
 
 	virtual void OnPrepareRender();		//랜더링 전에 동작해야 할 것들
 	virtual void Render(Renderer& renderer);					//랜더링

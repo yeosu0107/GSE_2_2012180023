@@ -63,29 +63,35 @@ struct float4
 
 struct OOBB
 {
-	float3 Edge[4];
+	//float3 Edge[4];
+	float3 m_pos;
 	float m_size;
+	float m_collisonLen;
 	OOBB(float3 pos, float size) {
 		m_size =size/2;
-		Edge[0] = float3(pos.x - m_size, pos.y - m_size, 0);
+		m_collisonLen = m_size*m_size;
+		m_pos = pos;
+		/*Edge[0] = float3(pos.x - m_size, pos.y - m_size, 0);
 		Edge[1] = float3(pos.x + m_size, pos.y - m_size, 0);
 		Edge[2] = float3(pos.x - m_size, pos.y + m_size, 0);
-		Edge[3] = float3(pos.x + m_size, pos.y + m_size, 0);
+		Edge[3] = float3(pos.x + m_size, pos.y + m_size, 0);*/
 	}
 	bool collision(const OOBB& tmp) {
-		for (int i = 0; i < 4; ++i) {
-			if (Edge[i] > tmp.Edge[0] && Edge[i] < tmp.Edge[1] &&
-				Edge[i] > tmp.Edge[2] && Edge[i] < tmp.Edge[3])
-				return true;
-		}
+		float len = (tmp.m_pos.x - m_pos.x) * (tmp.m_pos.x - m_pos.x) +
+			(tmp.m_pos.y - m_pos.y) * (tmp.m_pos.y - m_pos.y);
+
+		if (len <= m_collisonLen)
+			return true;
 		return false;
 	}
 	void refrash(float3 pos) {
-		Edge[0] = float3(pos.x - m_size, pos.y - m_size, 0);
+		m_pos = pos;
+		/*Edge[0] = float3(pos.x - m_size, pos.y - m_size, 0);
 		Edge[1] = float3(pos.x + m_size, pos.y - m_size, 0);
 		Edge[2] = float3(pos.x - m_size, pos.y + m_size, 0);
-		Edge[3] = float3(pos.x + m_size, pos.y + m_size, 0);
+		Edge[3] = float3(pos.x + m_size, pos.y + m_size, 0);*/
 	}
+	
 };
 
 
