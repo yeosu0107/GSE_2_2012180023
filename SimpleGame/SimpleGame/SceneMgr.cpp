@@ -30,18 +30,29 @@ void SceneMgr::Collision() {
 			continue;
 		m_Objects[i]->setCollisionCheck(false);
 	}
+
+	//오브젝트 끼리의 충돌체크
 	for (int i = 0; i < MAX_OBJECT_COUNT; ++i) {
+		if (!m_Objects[i] || m_Objects[i]->getNowCollision())
+			continue;
 		for (int j = 0; j < MAX_OBJECT_COUNT; ++j) {
-			if ( i == j || !m_Objects[i] || !m_Objects[j]
-				||m_Objects[i]->getNowCollision() )
+			if ( i == j || !m_Objects[j]
+				|| m_Objects[j]->getNowCollision() )
 				continue;
 
 			if (m_Objects[i]->getOOBB()->collision(*m_Objects[j]->getOOBB())) {
+				//중복충돌체크 방지를 위해 이미 충돌한 객체 체크
 				m_Objects[i]->setCollisionCheck(true);
 				m_Objects[j]->setCollisionCheck(true);
 
 				m_Objects[i]->ColorChange();
 				m_Objects[j]->ColorChange();
+
+				/*float3 i_moveDir = m_Objects[i]->getMoveDir();
+				float3 j_moveDir = m_Objects[j]->getMoveDir();
+
+				m_Objects[i]->setMoveDir(i_moveDir*-1);
+				m_Objects[j]->setMoveDir(j_moveDir*-1);*/
 				//printf("Crash! %d %d\n", i, j);
 			}
 		}
