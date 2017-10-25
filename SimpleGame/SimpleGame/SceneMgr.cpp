@@ -1,6 +1,7 @@
 
 #include "stdafx.h"
 #include "SceneMgr.h"
+#include "Renderer.h"
 #include <random>
 
 std::default_random_engine dre;
@@ -10,6 +11,12 @@ std::uniform_int_distribution<int> pos(-240, 240);
 
 SceneMgr::SceneMgr() {
 	m_currObjectscount = 0;
+	memset(m_Objects, 0, sizeof(Objects));
+	m_Renderer = new Renderer(WindowWidth, WindowHeight);
+	if (!m_Renderer->IsInitialized())
+	{
+		std::cout << "Renderer could not be initialized.. \n";
+	}
 }
 
 SceneMgr::~SceneMgr() {
@@ -18,10 +25,9 @@ SceneMgr::~SceneMgr() {
 
 
 void SceneMgr::BuildObjects() {
-	/*for (int i = 0; i < 2; ++i) {
+	for (int i = 0; i < 50; ++i) {
 		Add(pos(dre), pos(dre));
 	}
-	m_currObjectscount = 2;*/
 }
 
 void SceneMgr::Collision() {
@@ -29,6 +35,7 @@ void SceneMgr::Collision() {
 		if (!m_Objects[i])
 			continue;
 		m_Objects[i]->setCollisionCheck(false);
+		m_Objects[i]->setColor(1, 1, 1, 1);
 	}
 
 	//오브젝트 끼리의 충돌체크
@@ -45,32 +52,34 @@ void SceneMgr::Collision() {
 				m_Objects[i]->setCollisionCheck(true);
 				m_Objects[j]->setCollisionCheck(true);
 
-				m_Objects[i]->ColorChange();
-				m_Objects[j]->ColorChange();
+				m_Objects[i]->setColor(1, 0, 0, 1);
+				m_Objects[j]->setColor(1, 0, 0, 1);
 
-				/*float3 i_moveDir = m_Objects[i]->getMoveDir();
-				float3 j_moveDir = m_Objects[j]->getMoveDir();
-
-				m_Objects[i]->setMoveDir(i_moveDir*-1);
-				m_Objects[j]->setMoveDir(j_moveDir*-1);*/
-				//printf("Crash! %d %d\n", i, j);
+				m_Objects[i]->setminusLife(1);
+				m_Objects[j]->setminusLife(1);
 			}
 		}
 	}
 }
 
-void SceneMgr::Update() {
+void SceneMgr::Update(float ElapsedTime) {
 	for (int i = 0; i < MAX_OBJECT_COUNT; ++i) {
-		if(m_Objects[i])
-			m_Objects[i]->Update();
+		if (m_Objects[i] != nullptr) {
+			m_Objects[i]->Update(ElapsedTime);
+
+			if (!m_Objects[i]->getLive())
+				m_Objects[i] = nullptr;
+		}
+		
 	}
 	Collision();
+	
 }
 
-void SceneMgr::Render(Renderer& g_Renderer) {
+void SceneMgr::Render() {
 	for (int i = 0; i < MAX_OBJECT_COUNT; ++i) {
 		if(m_Objects[i])
-			m_Objects[i]->Render(g_Renderer);
+			m_Objects[i]->Render(*m_Renderer);
 	}
 }
 
@@ -82,7 +91,7 @@ void SceneMgr::Add(int x, int y) {
 		m_currObjectscount = 0;
 
 	Objects* newObject = new Objects(float3(x, y, 0), float4(1, 1, 1, 1), 10, 0, "임시",
-		float3(ui(dre), ui(dre), 0), 0.1f);
+		float3(ui(dre), ui(dre), 0), 10);
 
 	m_Objects[m_currObjectscount] = newObject;
 	m_currObjectscount += 1;

@@ -8,32 +8,38 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY.
 */
 
+
+
 #include "stdafx.h"
-#include <iostream>
-#include <vector>
+
 #include "Dependencies\glew.h"
 #include "Dependencies\freeglut.h"
 
-#include "Renderer.h"
 #include "SceneMgr.h"
 
-Renderer* g_Renderer = NULL;
-SceneMgr scene;
+
+SceneMgr* scene = nullptr;
 bool g_LButtonDown = false;
+
+DWORD prevTime = timeGetTime();
 
 void RenderScene(void)
 {
+	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0f, 0.3f, 0.3f, 1.0f);
 
-	scene.Update();
-	scene.Render(*g_Renderer);
+	DWORD currTime = timeGetTime();
+	float time = (currTime - prevTime)*0.001f;
+	prevTime = currTime;
+	scene->Update(time);
+	scene->Render();
 	glutSwapBuffers();
+
 }
 
 void Idle(void)
 {
-	scene.BuildObjects();
 	RenderScene();
 }
 
@@ -47,7 +53,7 @@ void MouseInput(int button, int state, int x, int y)
 			int xPos = x - WindowWidth / 2;
 			int yPos = WindowHeight / 2 - y;
 
-			scene.Add(xPos, yPos);
+			scene->Add(xPos, yPos);
 
 			g_LButtonDown = false;
 		}
@@ -84,14 +90,16 @@ int main(int argc, char **argv)
 	}
 
 	// Initialize Renderer
-	g_Renderer = new Renderer(WindowWidth, WindowHeight);
+	/*g_Renderer = new Renderer(WindowWidth, WindowHeight);
 	if (!g_Renderer->IsInitialized())
 	{
 		std::cout << "Renderer could not be initialized.. \n";
-	}
+	}*/
 
 	//g_Object = new Objects(100, -30, 0, 1, 0, 0, 1, 10, 1, "юс╫ц", 1, 1, 0, 0.1f);
 
+	scene = new SceneMgr();
+	scene->BuildObjects();
 	glutDisplayFunc(RenderScene);
 	glutIdleFunc(Idle);
 	glutKeyboardFunc(KeyInput);
@@ -100,7 +108,7 @@ int main(int argc, char **argv)
 
 	glutMainLoop();
 
-	delete g_Renderer;
+	delete scene;
 
     return 0;
 }

@@ -2,8 +2,10 @@
 
 #include "targetver.h"
 
-#include <stdio.h>
+#include <iostream>
 #include <tchar.h>
+#include <windows.h>
+#pragma comment(lib, "winmm.lib") 
 
 #define WindowWidth 500
 #define WindowHeight 500
@@ -63,33 +65,43 @@ struct float4
 
 struct OOBB
 {
-	//float3 Edge[4];
 	float3 m_pos;
 	float m_size;
 	float m_collisonLen;
+
+	float minX, maxX, minY, maxY;
+
 	OOBB(float3 pos, float size) {
 		m_size =size/2;
 		m_collisonLen = m_size*m_size;
 		m_pos = pos;
-		/*Edge[0] = float3(pos.x - m_size, pos.y - m_size, 0);
-		Edge[1] = float3(pos.x + m_size, pos.y - m_size, 0);
-		Edge[2] = float3(pos.x - m_size, pos.y + m_size, 0);
-		Edge[3] = float3(pos.x + m_size, pos.y + m_size, 0);*/
+
+		minX = m_pos.x - m_size; maxX = m_pos.x + m_size;
+		minY = m_pos.y - m_size; maxY = m_pos.y + m_size;
+
 	}
 	bool collision(const OOBB& tmp) {
 		float len = (tmp.m_pos.x - m_pos.x) * (tmp.m_pos.x - m_pos.x) +
 			(tmp.m_pos.y - m_pos.y) * (tmp.m_pos.y - m_pos.y);
 
-		if (len <= m_collisonLen)
+		if (len <= m_collisonLen) {
+			if (tmp.minX > maxX)
+				return false;
+			if (tmp.minY > maxY)
+				return false;
+			if (tmp.maxX < minX)
+				return false;
+			if (tmp.maxY < minY)
+				return false;
 			return true;
+		}
 		return false;
 	}
 	void refrash(float3 pos) {
 		m_pos = pos;
-		/*Edge[0] = float3(pos.x - m_size, pos.y - m_size, 0);
-		Edge[1] = float3(pos.x + m_size, pos.y - m_size, 0);
-		Edge[2] = float3(pos.x - m_size, pos.y + m_size, 0);
-		Edge[3] = float3(pos.x + m_size, pos.y + m_size, 0);*/
+		
+		minX = m_pos.x - m_size; maxX = m_pos.x + m_size;
+		minY = m_pos.y - m_size; maxY = m_pos.y + m_size;
 	}
 	
 };

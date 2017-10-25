@@ -9,6 +9,7 @@ Objects::Objects() : m_Pos(0, 0, 0), m_Size(0), m_Weight(0), m_Color(0, 0, 0, 0)
 	m_Name = new char[namebuff];
 	now_crash = false;
 	m_oobb = new OOBB(m_Pos, m_Size);
+	m_LifeTime = 10000;
 }
 
 Objects::Objects(float x, float y, float z, float r, float g, float b, float a, float size, float weight,
@@ -18,6 +19,8 @@ Objects::Objects(float x, float y, float z, float r, float g, float b, float a, 
 	m_Name = name;
 	now_crash = false;
 	m_oobb = new OOBB(m_Pos, m_Size);
+	m_LifeTime = 10000;
+	m_Life = 100;
 	/*m_Name = new char[namebuff];
 	strncpy(m_Name, name, namebuff);*/
 }
@@ -27,6 +30,8 @@ Objects::Objects(float3 pos, float4 color, float size, float weight, char* name,
 	m_Name = name;
 	now_crash = false;
 	m_oobb = new OOBB(m_Pos, m_Size);
+	m_LifeTime = 100;
+	m_Life = 100;
 	/*m_Name = new char[namebuff];
 	strncpy(m_Name, name, namebuff);*/
 }
@@ -74,15 +79,15 @@ void Objects::setMoveDir(float3 moveDir)
 	m_moveDir = moveDir;
 }
 
-void Objects::Move()
+void Objects::Move(float ElapsedTime)
 {
-	float3 moveValue = m_moveDir*m_moveSpeed;
+	float3 moveValue = m_moveDir*m_moveSpeed*ElapsedTime;
 	m_Pos += moveValue;
 	
 	//printf("%f %f %f\n", m_Pos.x, m_Pos.y, m_Pos.z);
 }
 
-void Objects::Move(float3 moveValue)
+void Objects::Move(float ElapsedTime, float3 moveValue)
 {
 	m_Pos += moveValue;
 }
@@ -114,12 +119,18 @@ void Objects::Render(Renderer& g_Renderer)
 	}
 }
 
-void Objects::Update()
+void Objects::Update(float ElapsedTime)
 {
 	if (m_Live) {
 		m_oobb->refrash(m_Pos);
 		Animate();
 		CrashCheck();
-		Move();
+		Move(ElapsedTime);
+
+		m_LifeTime -= 1*ElapsedTime;
+		if (m_LifeTime < 0)
+			m_Live = false;
+		if (m_Life <= 0)
+			m_Live = false;
 	}
 }

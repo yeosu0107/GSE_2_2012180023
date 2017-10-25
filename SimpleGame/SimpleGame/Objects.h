@@ -14,7 +14,6 @@ protected:
 	float m_Size;		//크기
 	float m_Weight;	//무게
 
-	bool m_Live;		//게임상에 표현되는 여부 (true - 표현해라, false -  지워진 상태)
 	char* m_Name;	//이름
 	
 	float3 m_moveDir;		//이동방향 (x,y,z)
@@ -23,7 +22,9 @@ protected:
 	bool now_crash;
 	OOBB* m_oobb = nullptr;;
 
-	float colorvar = 0.1f;
+	bool m_Live;		//게임상에 표현되는 여부 (true - 표현해라, false -  지워진 상태)
+	int m_LifeTime;
+	int m_Life;
 
 public:
 	Objects();
@@ -47,6 +48,8 @@ public:
 	void setMoveDir(float, float, float);
 	void setMoveDir(float3);
 
+	void setminusLife(int tmp) { m_Life -= tmp; }
+
 
 	//변수 값 불러오기
 	float3 getPos() const { return m_Pos; }
@@ -64,17 +67,9 @@ public:
 	bool getNowCollision()const { return now_crash; }
 
 	//오브젝트 제어
-	void Move();								//이동방향으로 이동속도만큼 이동
-	void Move(float3 moveValue);		//속도벡터만큼 이동
-	
-	void ColorChange() {
-		if (m_Color.x < 0 || m_Color.x>1)
-			colorvar *= -1;
-		m_Color.x += colorvar;
-		m_Color.y += colorvar;
-		m_Color.z += colorvar;
-		m_Color.w += colorvar;
-	}
+	void Move(float ElapsedTime);								//이동방향으로 이동속도만큼 이동
+	void Move(float ElapsedTime, float3 moveValue);		//속도벡터만큼 이동
+
 
 	virtual void Animate();					//애니메이트
 	virtual void CrashCheck();				//충돌체크
@@ -83,5 +78,5 @@ public:
 	virtual void OnPrepareRender();		//랜더링 전에 동작해야 할 것들
 	virtual void Render(Renderer& renderer);					//랜더링
 
-	virtual void Update();					//업데이트
+	virtual void Update(float ElapsedTime);					//업데이트
 };
