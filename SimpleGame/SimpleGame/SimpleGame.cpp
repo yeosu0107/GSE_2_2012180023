@@ -53,7 +53,7 @@ void MouseInput(int button, int state, int x, int y)
 			int xPos = x - WindowWidth / 2;
 			int yPos = WindowHeight / 2 - y;
 
-			scene->Add(xPos, yPos);
+			scene->MouseInput(xPos, yPos);
 
 			g_LButtonDown = false;
 		}

@@ -10,6 +10,8 @@
 #define WindowWidth 500
 #define WindowHeight 500
 
+
+
 struct float3
 {
 	float x, y, z;
@@ -52,6 +54,13 @@ struct float3
 	}
 	bool operator<(const float3& num) const {
 		return(*this >= num);
+	}
+
+	void normalize() {
+		float size = x + y;
+		x /= size;
+		y /= size;
+		z /= size;
 	}
 };
 
