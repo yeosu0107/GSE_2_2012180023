@@ -1,6 +1,6 @@
 #pragma once
 #include "Objects.h"
-#include <vector>
+#include <list>
 
 const int MAX_OBJECT_COUNT = 1500;
 
@@ -8,10 +8,12 @@ class SceneMgr
 {
 private:
 	Renderer* m_Renderer;
-	//std::vector<Objects*> m_Objects;
-	Objects* m_Objects[MAX_OBJECT_COUNT];
-	int m_currObjectscount;
-	
+
+	std::list<Objects*> m_BuildingObjects;
+	std::list<Objects*> m_BulletObjects;
+	std::list<Objects*> m_CharacterObjects;
+	std::list<Objects*> m_ArrowObjects;
+
 	float timeCount = 0.5f;
 	DWORD prevTime = 0;
 
@@ -30,5 +32,4 @@ public:
 	void MouseInput(int x, int y);
 
 	void AddObject(int x, int y, int type);
-	void DeleteObject(int index);
 };

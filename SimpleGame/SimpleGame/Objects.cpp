@@ -12,6 +12,7 @@ Objects::Objects() : m_Pos(0, 0, 0), m_Size(0), m_Weight(0), m_Color(0, 0, 0, 0)
 	m_LifeTime = 10000;
 }
 
+
 Objects::Objects(float x, float y, float z, float r, float g, float b, float a, float size, float weight,
 	char* name, float mx, float my, float mz, float speed, int life) : m_Pos(x,y,z), m_Color(r,g,b,a), m_Size(size), m_Weight(weight),
 		m_Live(true), m_moveDir(mx, my, mz), m_moveSpeed(speed), m_Life(life)
@@ -23,6 +24,7 @@ Objects::Objects(float x, float y, float z, float r, float g, float b, float a, 
 	m_moveDir.normalize();
 
 }
+
 Objects::Objects(float3 pos, float4 color, float size, float weight, char* name, float3 dir, float speed, int life) :
 	m_Pos(pos), m_Color(color), m_Size(size), m_Weight(weight), m_Live(true), m_moveDir(dir), m_moveSpeed(speed), m_Life(life)
 {
@@ -70,6 +72,8 @@ void Objects::setMoveDir(float x, float y, float z)
 	m_moveDir.x = x;
 	m_moveDir.y = y;
 	m_moveDir.z = z;
+
+	m_moveDir.normalize();
 }
 
 void Objects::setMoveDir(float3 moveDir)

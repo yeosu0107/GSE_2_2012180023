@@ -93,7 +93,7 @@ struct OOBB
 		float len = (tmp.m_pos.x - m_pos.x) * (tmp.m_pos.x - m_pos.x) +
 			(tmp.m_pos.y - m_pos.y) * (tmp.m_pos.y - m_pos.y);
 
-		if (len <= m_collisonLen) {
+		if (len <= m_collisonLen || len<=tmp.m_collisonLen) {
 			if (tmp.minX > maxX)
 				return false;
 			if (tmp.minY > maxY)

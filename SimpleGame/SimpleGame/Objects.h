@@ -32,7 +32,9 @@ public:
 	Objects();
 	Objects(float x, float y, float z, float r, float g, float b, float a, float size, float weight, 
 		char* name, float mx, float my, float mz, float speed, int life);
+	//좌표, RGB , 사이즈, 질량, 이름, 이동방향, 속도, 생명력
 	Objects(float3 pos, float4 color, float size, float weight, char* name, float3 dir, float speed, int life);
+	//좌표, RGB , 사이즈, 질량, 이름, 이동방향, 속도, 생명력
 	~Objects();
 
 	//변수값 저장
@@ -40,7 +42,12 @@ public:
 	void setPos(float3);
 	void setColor(float, float, float, float);
 	void setColor(float4);
-	void setSize(float size) { m_Size = size; }
+	void setSize(float size) { 
+		m_Size = size; 
+		if (m_oobb)
+			delete m_oobb;
+		m_oobb = new OOBB(m_Pos, m_Size);
+	}
 	void setWeight(float weight) { m_Weight = weight; }
 	void setType(int type) { m_type = type; }
 

@@ -10,8 +10,6 @@ std::uniform_int_distribution<int> pos(-240, 240);
 
 
 SceneMgr::SceneMgr() {
-	m_currObjectscount = 0;
-	memset(m_Objects, 0, sizeof(Objects));
 	m_Renderer = new Renderer(WindowWidth, WindowHeight);
 	if (!m_Renderer->IsInitialized())
 	{
@@ -20,7 +18,7 @@ SceneMgr::SceneMgr() {
 }
 
 SceneMgr::~SceneMgr() {
-	delete[] m_Objects;
+
 }
 
 
@@ -29,52 +27,29 @@ void SceneMgr::BuildObjects() {
 }
 
 void SceneMgr::Collision() {
-	for (int i = 0; i < MAX_OBJECT_COUNT; ++i) {
-		if (!m_Objects[i])
-			continue;
-		//m_Objects[i]->setCollisionCheck(0);
+	for (auto& building : m_BuildingObjects) {
+		building->setColor(float4(1, 1, 0, 1));
 	}
 
-	/*|| m_Objects[i]->getNowCollision()*/
-
+	int damage = 0;
 	//오브젝트 끼리의 충돌체크
-	for (int i = 0; i < MAX_OBJECT_COUNT; ++i) {
-		if (!m_Objects[i])
-			continue;
-		for (int j = 0; j < MAX_OBJECT_COUNT; ++j) {
-			if (i == j || !m_Objects[j])
-				continue;
+	for (auto& character : m_CharacterObjects) {
+		//캐릭터 - 빌딩
+		for (auto& building : m_BuildingObjects) {
+			if (character->getOOBB()->collision(*building->getOOBB())) {
+				damage = character->getLife();
+				character->setminusLife(damage);
+				building->setminusLife(damage);
+				building->setColor(float4(1, 0, 0, 1));
+			}
+		}
 
-			if (m_Objects[i]->getOOBB()->collision(*m_Objects[j]->getOOBB())) {
-				switch (m_Objects[i]->getType()) {
-				case ObjectType::OBJECT_BUILDING:
-					if (m_Objects[j]->getType() == ObjectType::OBJECT_CHARACTER) {
-						m_Objects[i]->setminusLife(m_Objects[j]->getLife());
-
-						m_Objects[j]->setminusLife(m_Objects[j]->getLife());
-					}
-					break;
-				case ObjectType::OBJECT_CHARACTER:
-					if (m_Objects[j]->getType() == ObjectType::OBJECT_BUILDING) {
-						m_Objects[i]->setminusLife(m_Objects[i]->getLife());
-
-						m_Objects[j]->setminusLife(m_Objects[i]->getLife());
-					}
-
-					if (m_Objects[j]->getType() == ObjectType::OBJECT_BULLET) {
-						m_Objects[i]->setminusLife(m_Objects[j]->getLife());
-
-						m_Objects[j]->setminusLife(m_Objects[j]->getLife());
-					}
-					break;
-				case ObjectType::OBJECT_BULLET:
-					if (m_Objects[j]->getType() == ObjectType::OBJECT_CHARACTER) {
-						m_Objects[i]->setminusLife(m_Objects[i]->getLife());
-
-						m_Objects[j]->setminusLife(m_Objects[i]->getLife());
-					}
-					break;
-				}
+		//캐릭터 - 총알
+		for (auto& bullet : m_BulletObjects) {
+			if (character->getOOBB()->collision(*bullet->getOOBB())) {
+				damage = bullet->getLife();
+				character->setminusLife(damage);
+				bullet->setminusLife(damage);
 			}
 		}
 	}
@@ -82,29 +57,75 @@ void SceneMgr::Collision() {
 
 void SceneMgr::Update(float ElapsedTime) {
 	DWORD currTime = timeGetTime() *0.001f;
+
 	if (currTime - prevTime > timeCount) {
 		AddObject(0, 0, ObjectType::OBJECT_BULLET);
 		prevTime = currTime;
 	}
 	
-	for (int i = 0; i < MAX_OBJECT_COUNT; ++i) {
-		if (m_Objects[i] != nullptr) {
-			m_Objects[i]->Update(ElapsedTime);
+	std::list<Objects*>::iterator iter;
 
-			if (!m_Objects[i]->getLive()) {
-				DeleteObject(i);
-			}
+	//캐릭터 오브젝트
+	for (iter = m_CharacterObjects.begin(); iter != m_CharacterObjects.end(); )
+	{
+		(*iter)->Update(ElapsedTime);
+		if (!(*iter)->getLive()) {//Live가 False인 객체 삭제
+			m_CharacterObjects.erase(iter++);
 		}
-		
+		else {
+			iter++;
+		}
 	}
+	//빌딩 오브젝트
+	for (iter = m_BuildingObjects.begin(); iter != m_BuildingObjects.end(); )
+	{
+		(*iter)->Update(ElapsedTime);
+		if (!(*iter)->getLive()) {//Live가 False인 객체 삭제
+			m_BuildingObjects.erase(iter++);
+		}
+		else {
+			iter++;
+		}
+	}
+	//총알 오브젝트
+	for (iter = m_BulletObjects.begin(); iter != m_BulletObjects.end(); )
+	{
+		(*iter)->Update(ElapsedTime);
+		if (!(*iter)->getLive()) {//Live가 False인 객체 삭제
+			m_BulletObjects.erase(iter++);
+		}
+		else {
+			iter++;
+		}
+	}
+	//화살 오브젝트
+	for (iter = m_ArrowObjects.begin(); iter != m_ArrowObjects.end(); )
+	{
+		(*iter)->Update(ElapsedTime);
+		if (!(*iter)->getLive()) {//Live가 False인 객체 삭제
+			m_ArrowObjects.erase(iter++);
+		}
+		else {
+			iter++;
+		}
+	}
+
+	//오브젝트 충돌체크
 	Collision();
-	
 }
 
 void SceneMgr::Render() {
-	for (int i = 0; i < MAX_OBJECT_COUNT; ++i) {
-		if(m_Objects[i])
-			m_Objects[i]->Render(*m_Renderer);
+	for (auto& character : m_CharacterObjects) {
+		character->Render(*m_Renderer);
+	}
+	for (auto& building : m_BuildingObjects) {
+		building->Render(*m_Renderer);
+	}
+	for (auto& bullet : m_BulletObjects) {
+		bullet->Render(*m_Renderer);
+	}
+	for (auto& arrow : m_ArrowObjects) {
+		arrow->Render(*m_Renderer);
 	}
 }
 
@@ -114,11 +135,6 @@ void SceneMgr::MouseInput(int x, int y) {
 
 
 void SceneMgr::AddObject(int x, int y, int type) {
-	while (m_Objects[m_currObjectscount] != nullptr) {
-		m_currObjectscount++;
-		if (m_currObjectscount >= MAX_OBJECT_COUNT)
-			m_currObjectscount = 0;
-	}
 
 	Objects* newObject = nullptr;
 
@@ -126,35 +142,40 @@ void SceneMgr::AddObject(int x, int y, int type) {
 	case ObjectType::OBJECT_BUILDING:
 		newObject = new Objects(float3(x, y, 0), float4(1, 1, 0, 1), 50, 0, "빌딩",
 			float3(ui(dre), ui(dre), 0), 0, 500);
+
 		newObject->setType(ObjectType::OBJECT_BUILDING);
+
+		m_BuildingObjects.push_back(newObject);
 		break;
+
 	case ObjectType::OBJECT_CHARACTER:
 		newObject = new Objects(float3(x, y, 0), float4(1, 1, 1, 1), 10, 0, "캐릭터",
 			float3(ui(dre), ui(dre), 0), 100, 10);
+
 		newObject->setType(ObjectType::OBJECT_CHARACTER);
+
+		m_CharacterObjects.push_back(newObject);
 		break;
+
 	case ObjectType::OBJECT_ARROW:
 		newObject = new Objects(float3(x, y, 0), float4(0, 1, 0, 1), 2, 0, "화살",
 			float3(ui(dre), ui(dre), 0), 100, 10);
+
 		newObject->setType(ObjectType::OBJECT_ARROW);
+
+		m_ArrowObjects.push_back(newObject);
 		break;
+
 	case ObjectType::OBJECT_BULLET:
 		newObject = new Objects(float3(x, y, 0), float4(1, 0, 0, 1), 2, 0, "총알",
 			float3(ui(dre), ui(dre), 0), 300, 20);
-		newObject->setType(ObjectType::OBJECT_BULLET);
-		break;
-	default:
 		
-		return;
-	}
-	
-	m_Objects[m_currObjectscount] = newObject;
-	//m_currObjectscount += 1;
-}
+		newObject->setType(ObjectType::OBJECT_BULLET);
 
-void SceneMgr::DeleteObject(int index)
-{
-	if (m_Objects[index] != nullptr) {
-		m_Objects[index] = nullptr;
+		m_BulletObjects.push_back(newObject);
+		break;
+
+	default:
+		return;
 	}
 }
