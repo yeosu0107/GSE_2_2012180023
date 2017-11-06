@@ -82,7 +82,7 @@ struct OOBB
 
 	OOBB(float3 pos, float size) {
 		m_size =size/2;
-		m_collisonLen = m_size*m_size;
+		m_collisonLen = (m_size*1.4f) * (m_size*1.4f); //1.4는 루트2의 근사값
 		m_pos = pos;
 
 		minX = m_pos.x - m_size; maxX = m_pos.x + m_size;

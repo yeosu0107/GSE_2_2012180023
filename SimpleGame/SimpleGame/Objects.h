@@ -19,14 +19,14 @@ protected:
 	float3 m_moveDir;		//이동방향 (x,y,z)
 	float m_moveSpeed;	//이동속도
 
-	int now_crash_count;
-	OOBB* m_oobb = nullptr;;
+	int now_crash_count;	//몇번 충돌했나?
+	OOBB* m_oobb = nullptr;;	//OOBB박스
 
 	bool m_Live;		//게임상에 표현되는 여부 (true - 표현해라, false -  지워진 상태)
-	int m_LifeTime;
-	int m_Life;
+	int m_LifeTime;   //최대 생존 시간
+	int m_Life;			//HP
 
-	int m_type;
+	int m_type;			//오브젝트 타입
 
 public:
 	Objects();
