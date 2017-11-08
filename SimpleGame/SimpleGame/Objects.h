@@ -13,8 +13,10 @@ protected:
 	float4 m_Color;	//색깔
 	float m_Size;		//크기
 	float m_Weight;	//무게
+	UINT m_texIndex;
 
 	char* m_Name;	//이름
+	int m_id;
 	
 	float3 m_moveDir;		//이동방향 (x,y,z)
 	float m_moveSpeed;	//이동속도
@@ -60,6 +62,8 @@ public:
 
 	void setminusLife(int tmp) { m_Life -= tmp; }
 	void setCollisionCheck(int tmp) { now_crash_count = tmp; }
+	void setID(int tmp) { m_id = tmp; }
+	void setTexIndex(int tmp) { m_texIndex = tmp; }
 
 	//변수 값 불러오기
 	float3 getPos() const { return m_Pos; }
@@ -77,6 +81,8 @@ public:
 
 	OOBB* getOOBB() const { return m_oobb; }
 	int getCollisonCheck() const { return now_crash_count; }
+	int getID() const { return m_id; }
+	int getTexIndex() const { return m_texIndex; }
 	//bool getNowCollision()const { return now_crash; }
 
 	//오브젝트 제어
@@ -92,4 +98,17 @@ public:
 	virtual void Render(Renderer& renderer);					//랜더링
 
 	virtual void Update(float ElapsedTime);					//업데이트
+};
+
+class Projectile : public Objects
+{
+private:
+	Objects* m_Parents;
+public:
+	Projectile(float3 pos, float4 color, float size, float weight, char* name, float3 dir, float speed, int life);
+
+	void setParents(Objects* tmp) { m_Parents = tmp; }
+	Objects* getParents() const { return m_Parents; }
+
+	virtual void Update(float ElapsedTime);
 };

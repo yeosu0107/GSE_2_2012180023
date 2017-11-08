@@ -10,6 +10,7 @@ Objects::Objects() : m_Pos(0, 0, 0), m_Size(0), m_Weight(0), m_Color(0, 0, 0, 0)
 	now_crash_count = 0;
 	m_oobb = new OOBB(m_Pos, m_Size);
 	m_LifeTime = 10000;
+	m_texIndex = -1;
 }
 
 
@@ -20,6 +21,7 @@ Objects::Objects(float x, float y, float z, float r, float g, float b, float a, 
 	m_Name = name;
 	now_crash_count = 0;
 	m_oobb = new OOBB(m_Pos, m_Size);
+	m_texIndex = -1;
 
 	m_moveDir.normalize();
 
@@ -31,6 +33,7 @@ Objects::Objects(float3 pos, float4 color, float size, float weight, char* name,
 	m_Name = name;
 	now_crash_count = 0;
 	m_oobb = new OOBB(m_Pos, m_Size);
+	m_texIndex = -1;
 
 	m_moveDir.normalize();
 
@@ -101,9 +104,9 @@ void Objects::Animate()
 
 void Objects::CrashCheck()
 {
-	if (m_Pos.x<=-WindowWidth / 2 || m_Pos.x>=WindowWidth/2)
+	if (m_Pos.x - m_Size <=-WindowWidth / 2 || m_Pos.x + m_Size>=WindowWidth/2)
 		m_moveDir.x *= -1;
-	if (m_Pos.y<=-WindowHeight / 2 || m_Pos.y>=WindowHeight/2)
+	if (m_Pos.y - m_Size <=-WindowHeight / 2 || m_Pos.y + m_Size >=WindowHeight/2)
 		m_moveDir.y *= -1;
 }
 
@@ -116,8 +119,13 @@ void Objects::Render(Renderer& g_Renderer)
 {
 	if (m_Live) {
 		OnPrepareRender();
-		g_Renderer.DrawSolidRect(m_Pos.x, m_Pos.y, m_Pos.z, m_Size,
-			m_Color.x, m_Color.y, m_Color.z, m_Color.w);
+		if(m_texIndex==-1)
+			g_Renderer.DrawSolidRect(m_Pos.x, m_Pos.y, m_Pos.z, m_Size,
+				m_Color.x, m_Color.y, m_Color.z, m_Color.w);
+		else {
+			g_Renderer.DrawTexturedRect(m_Pos.x, m_Pos.y, m_Pos.z, m_Size, 
+				m_Color.x, m_Color.y, m_Color.z, m_Color.w, m_texIndex);
+		}
 	}
 }
 
@@ -135,4 +143,18 @@ void Objects::Update(float ElapsedTime)
 		if (m_Life <= 0)
 			m_Live = false;
 	}
+}
+
+Projectile::Projectile(float3 pos, float4 color, float size, float weight, char* name, float3 dir, float speed, int life) :
+	Objects(pos, color, size, weight, name, dir, speed, life)
+{
+
+}
+
+void Projectile::Update(float ElapsedTime)
+{
+	if (m_Parents == nullptr)
+		m_Live = false;
+
+	Objects::Update(ElapsedTime);
 }

@@ -57,10 +57,13 @@ struct float3
 	}
 
 	void normalize() {
-		float size = x + y;
-		x /= size;
-		y /= size;
-		z /= size;
+		float tmpx = x<0 ? x*-1 : x;
+		float tmpy = y<0 ? y*-1 : y;
+
+		float size = 1.0f / (tmpx + tmpy);
+		x *= size;
+		y *= size;
+		z *= size;
 	}
 };
 
