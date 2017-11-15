@@ -39,7 +39,5 @@ public:
 	void AddObject(float3 pos, float3 dir, int type, TEAM team, int texIndex);
 	void AddArrow(float3 pos, float3 dir, int id, TEAM team);
 
-	void ShootBulletFromBuildings();
-	void ShootArrowFromCharacters();
 	void CreateCharacterObjects(TEAM team);
 };

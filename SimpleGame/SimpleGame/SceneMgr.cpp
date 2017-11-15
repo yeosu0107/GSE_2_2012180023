@@ -103,9 +103,7 @@ void SceneMgr::Update(float ElapsedTime) {
 
 	//1초 간격으로 실행하는 함수
 	if (currTime - prevTime[0] > timeLimit[0]) {
-		CreateCharacterObjects(TEAM::TEAM_1);
-		ShootBulletFromBuildings();
-		ShootArrowFromCharacters();
+		CreateCharacterObjects(TEAM::TEAM_1); //인공지능이 캐릭터를 생성
 		prevTime[0] = currTime;
 	}
 
@@ -114,7 +112,14 @@ void SceneMgr::Update(float ElapsedTime) {
 	//캐릭터 오브젝트
 	for (iter = m_CharacterObjects.begin(); iter != m_CharacterObjects.end(); )
 	{
-		(*iter)->Update(ElapsedTime);
+		//트루가 반환되면 화살 쏘기
+		if ((*iter)->Update(ElapsedTime)) {
+			float3 pos = (*iter)->getPos();
+			float3 dir = (*iter)->getMoveDir();
+
+			AddArrow(pos, dir, (*iter)->getID(), (*iter)->getTeam());
+		}
+
 		if (!(*iter)->getLive()) {//Live가 False인 객체 삭제
 			m_CharacterObjects.erase(iter++);
 		}
@@ -125,7 +130,17 @@ void SceneMgr::Update(float ElapsedTime) {
 	//빌딩 오브젝트
 	for (iter = m_BuildingObjects.begin(); iter != m_BuildingObjects.end(); )
 	{
-		(*iter)->Update(ElapsedTime);
+		//트루가 반환되면 총알쏘기
+		if ((*iter)->Update(ElapsedTime)) {
+			float3 dir(float3(uix(dre), uiy(dre), 0));
+			float3 pos = (*iter)->getPos();
+
+			if ((*iter)->getTeam() == TEAM::TEAM_1)
+				dir.y *= -1;
+
+			AddObject(pos, dir, ObjectType::OBJECT_BULLET, (*iter)->getTeam(), -1);
+		}
+
 		if (!(*iter)->getLive()) {//Live가 False인 객체 삭제
 			m_BuildingObjects.erase(iter++);
 		}
@@ -179,14 +194,11 @@ void SceneMgr::MouseInput(int x, int y) {
 	if (y > 0)
 		return;
 	DWORD currTime = timeGetTime() *0.001f;
-	//2초 간격으로 실행하는 함수
+	//플레이어 캐릭터 생성은 2초 쿨타임
 	if (currTime - prevTime[1] > timeLimit[1]) {
 		AddObject(float3(x, y, 0), float3(uix(dre), uiy(dre), uix(dre)), ObjectType::OBJECT_CHARACTER, TEAM::TEAM_2, -1);
 		prevTime[1] = currTime;
 	}
-	//float3 dir(float3(ui(dre), ui(dre), 0));
-	//float3 pos(x, y, 0);
-	//AddObject(pos, dir, ObjectType::OBJECT_CHARACTER, TEAM::TEAM_1, -1);
 }
 
 
@@ -301,32 +313,6 @@ void SceneMgr::AddArrow(float3 pos, float3 dir, int id, TEAM team)
 	newObject->setID(id);
 	newObject->setTeam(team);
 	m_ArrowObjects.push_back(newObject);
-}
-
-void SceneMgr::ShootBulletFromBuildings()
-{
-	float3 dir(float3(uix(dre), uiy(dre), 0));
-	float3 pos(0, 0, 0);
-
-	//빌딩이 총알을 쏨
-	for (const auto building : m_BuildingObjects) {
-		pos = building->getPos();
-		if (building->getTeam() == TEAM::TEAM_1)
-			dir.y *= -1;
-
-		AddObject(pos, dir, ObjectType::OBJECT_BULLET, building->getTeam(), -1);
-	}
-}
-
-void SceneMgr::ShootArrowFromCharacters()
-{
-	//캐릭터가 화살을 쏨
-	for (auto& character : m_CharacterObjects) {
-		float3 pos = character->getPos();
-		float3 dir = character->getMoveDir();
-
-		AddArrow(pos, dir, character->getID(), character->getTeam());
-	}
 }
 
 void SceneMgr::CreateCharacterObjects(TEAM team)

@@ -12,6 +12,9 @@ Objects::Objects() : m_Pos(0, 0, 0), m_Size(0), m_Weight(0), m_Color(0, 0, 0, 0)
 	m_LifeTime = 10000;
 	m_texIndex = -1;
 	m_Team = TEAM::NONE;
+
+	m_PrevTime = 0;
+	m_LimitTime = 1;
 }
 
 
@@ -24,6 +27,10 @@ Objects::Objects(float x, float y, float z, float r, float g, float b, float a, 
 	m_oobb = new OOBB(m_Pos, m_Size);
 	m_texIndex = -1;
 	m_Team = TEAM::NONE;
+
+	m_PrevTime = 0;
+	m_LimitTime = 1;
+
 	m_moveDir.normalize();
 
 }
@@ -36,6 +43,10 @@ Objects::Objects(float3 pos, float4 color, float size, float weight, char* name,
 	m_oobb = new OOBB(m_Pos, m_Size);
 	m_texIndex = -1;
 	m_Team = TEAM::NONE;
+
+	m_PrevTime = 0;
+	m_LimitTime = 1;
+
 	m_moveDir.normalize();
 
 }
@@ -130,7 +141,7 @@ void Objects::Render(Renderer& g_Renderer)
 	}
 }
 
-void Objects::Update(float ElapsedTime)
+bool Objects::Update(float ElapsedTime)
 {
 	if (m_Live) {
 		m_oobb->refrash(m_Pos);
@@ -138,24 +149,23 @@ void Objects::Update(float ElapsedTime)
 		CrashCheck();
 		Move(ElapsedTime);
 
+		DWORD currTime = timeGetTime() *0.001f;
+
+		
+
 		/*m_LifeTime -= 1*ElapsedTime;
 		if (m_LifeTime < 0)
 			m_Live = false;*/
 		if (m_Life <= 0)
 			m_Live = false;
+
+		if (currTime - m_PrevTime > m_LimitTime) {
+			m_PrevTime = currTime;
+			return true;
+		}
+
+		return false;
 	}
-}
-
-Projectile::Projectile(float3 pos, float4 color, float size, float weight, char* name, float3 dir, float speed, int life) :
-	Objects(pos, color, size, weight, name, dir, speed, life)
-{
 
 }
 
-void Projectile::Update(float ElapsedTime)
-{
-	if (m_Parents == nullptr)
-		m_Live = false;
-
-	Objects::Update(ElapsedTime);
-}

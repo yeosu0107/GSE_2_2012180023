@@ -32,6 +32,9 @@ protected:
 	int m_type;			//오브젝트 타입
 	TEAM m_Team;		//팀
 
+	DWORD m_PrevTime; 
+	float		m_LimitTime;
+
 public:
 	Objects();
 	Objects(float x, float y, float z, float r, float g, float b, float a, float size, float weight, 
@@ -87,6 +90,7 @@ public:
 	int getID() const { return m_id; }
 	int getTexIndex() const { return m_texIndex; }
 	TEAM getTeam() const { return m_Team; }
+
 	//bool getNowCollision()const { return now_crash; }
 
 	//오브젝트 제어
@@ -101,18 +105,5 @@ public:
 	virtual void OnPrepareRender();		//랜더링 전에 동작해야 할 것들
 	virtual void Render(Renderer& renderer);					//랜더링
 
-	virtual void Update(float ElapsedTime);					//업데이트
-};
-
-class Projectile : public Objects
-{
-private:
-	Objects* m_Parents;
-public:
-	Projectile(float3 pos, float4 color, float size, float weight, char* name, float3 dir, float speed, int life);
-
-	void setParents(Objects* tmp) { m_Parents = tmp; }
-	Objects* getParents() const { return m_Parents; }
-
-	virtual void Update(float ElapsedTime);
+	virtual bool Update(float ElapsedTime);					//업데이트
 };
