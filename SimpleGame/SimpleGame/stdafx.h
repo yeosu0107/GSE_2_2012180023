@@ -8,7 +8,7 @@
 #pragma comment(lib, "winmm.lib") 
 
 #define WindowWidth 500
-#define WindowHeight 500
+#define WindowHeight 800
 
 
 
@@ -63,7 +63,7 @@ struct float3
 		float size = 1.0f / (tmpx + tmpy);
 		x *= size;
 		y *= size;
-		z *= size;
+		//z *= size;
 	}
 };
 

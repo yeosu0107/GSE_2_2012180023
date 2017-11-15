@@ -5,6 +5,7 @@ const int namebuff = 10;
 
 class Renderer;
 
+enum TEAM {TEAM_1=0, TEAM_2, NONE};
 
 class Objects
 {
@@ -29,6 +30,7 @@ protected:
 	int m_Life;			//HP
 
 	int m_type;			//오브젝트 타입
+	TEAM m_Team;		//팀
 
 public:
 	Objects();
@@ -64,6 +66,7 @@ public:
 	void setCollisionCheck(int tmp) { now_crash_count = tmp; }
 	void setID(int tmp) { m_id = tmp; }
 	void setTexIndex(int tmp) { m_texIndex = tmp; }
+	void setTeam(TEAM tmp) { m_Team = tmp; }
 
 	//변수 값 불러오기
 	float3 getPos() const { return m_Pos; }
@@ -83,6 +86,7 @@ public:
 	int getCollisonCheck() const { return now_crash_count; }
 	int getID() const { return m_id; }
 	int getTexIndex() const { return m_texIndex; }
+	TEAM getTeam() const { return m_Team; }
 	//bool getNowCollision()const { return now_crash; }
 
 	//오브젝트 제어

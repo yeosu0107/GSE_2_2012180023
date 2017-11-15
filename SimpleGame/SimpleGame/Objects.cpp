@@ -11,6 +11,7 @@ Objects::Objects() : m_Pos(0, 0, 0), m_Size(0), m_Weight(0), m_Color(0, 0, 0, 0)
 	m_oobb = new OOBB(m_Pos, m_Size);
 	m_LifeTime = 10000;
 	m_texIndex = -1;
+	m_Team = TEAM::NONE;
 }
 
 
@@ -22,7 +23,7 @@ Objects::Objects(float x, float y, float z, float r, float g, float b, float a, 
 	now_crash_count = 0;
 	m_oobb = new OOBB(m_Pos, m_Size);
 	m_texIndex = -1;
-
+	m_Team = TEAM::NONE;
 	m_moveDir.normalize();
 
 }
@@ -34,7 +35,7 @@ Objects::Objects(float3 pos, float4 color, float size, float weight, char* name,
 	now_crash_count = 0;
 	m_oobb = new OOBB(m_Pos, m_Size);
 	m_texIndex = -1;
-
+	m_Team = TEAM::NONE;
 	m_moveDir.normalize();
 
 }
