@@ -83,15 +83,25 @@ void SceneMgr::Collision() {
 		}
 	}
 
-	for (auto& arrow : m_ArrowObjects) {
-		//ºôµù - È­»ì
-		for (auto& building : m_BuildingObjects) {
+	for (auto& building : m_BuildingObjects) {
+		//ºô´ç - È­»ì
+		for (auto& arrow : m_ArrowObjects) {
 			if (arrow->getTeam() == building->getTeam())
 				continue;
-
 			if (arrow->getOOBB()->collision(*building->getOOBB())) {
 				damage = arrow->getLife();
 				arrow->setminusLife(damage);
+				building->setminusLife(damage);
+			}
+		}
+
+		//ºôµù - ÃÑ¾Ë
+		for (auto& bullet : m_BulletObjects) {
+			if (bullet->getTeam() == building->getTeam())
+				continue;
+			if (bullet->getOOBB()->collision(*building->getOOBB())) {
+				damage = bullet->getLife();
+				bullet->setminusLife(damage);
 				building->setminusLife(damage);
 			}
 		}
@@ -116,7 +126,6 @@ void SceneMgr::Update(float ElapsedTime) {
 		if ((*iter)->Update(ElapsedTime)) {
 			float3 pos = (*iter)->getPos();
 			float3 dir = (*iter)->getMoveDir();
-
 			AddArrow(pos, dir, (*iter)->getID(), (*iter)->getTeam());
 		}
 
@@ -208,12 +217,14 @@ void SceneMgr::AddObject(float3 pos, float3 dir, int type, TEAM team, int texInd
 	float4 color(0, 0, 0, 1);
 	switch (type) {
 	case ObjectType::OBJECT_BUILDING:
-		newObject = new Objects(pos, float4(1, 1, 0, 1), 100, 0, "ºôµù",
+		newObject = new Objects(pos, float4(1, 1, 1, 1), 100, 0, "ºôµù",
 			float3(1, 1, 1), 0, 500);
 
 		newObject->setType(ObjectType::OBJECT_BUILDING);
 		newObject->setTexIndex(texIndex);
 		newObject->setTeam(team);
+		newObject->setRenderLevel(Render_Level.RENDER_BUILDING);
+		newObject->setIsLifeGuage(true);
 		m_BuildingObjects.push_back(newObject);
 		break;
 
@@ -229,14 +240,15 @@ void SceneMgr::AddObject(float3 pos, float3 dir, int type, TEAM team, int texInd
 			break;
 		}
 
-		newObject = new Objects(pos, color, 10, 0, "Ä³¸¯ÅÍ",
-			dir, 300, 10);
+		newObject = new Objects(pos, color, 30, 0, "Ä³¸¯ÅÍ",
+			dir, 300, 100);
 
-		newObject->setType(ObjectType::OBJECT_CHARACTER);
+		newObject->setType(0.3f);
 		newObject->setID(characterID);
 		characterID += 1;
-		
 		newObject->setTeam(team);
+		newObject->setRenderLevel(Render_Level.RENDER_CHARACTER);
+		newObject->setIsLifeGuage(true);
 		m_CharacterObjects.push_back(newObject);
 		break;
 
@@ -252,38 +264,18 @@ void SceneMgr::AddObject(float3 pos, float3 dir, int type, TEAM team, int texInd
 			break;
 		}
 
-		newObject = new Objects(pos, color, 2, 0, "ÃÑ¾Ë",
-			dir, 600, 20);
+		newObject = new Objects(pos, color, 4, 0, "ÃÑ¾Ë",
+			dir, 600, 15);
 		
 		newObject->setType(ObjectType::OBJECT_BULLET);
 		newObject->setTeam(team);
+		newObject->setRenderLevel(Render_Level.RENDER_PROJECTILE);
+		newObject->setIsProjecttile(true);
 		m_BulletObjects.push_back(newObject);
 		break;
 
-	/*case ObjectType::OBJECT_ARROW:
-		switch (team) {
-		case TEAM::TEAM_1:
-			color.x = 0.5;
-			color.y = 0.2;
-			color.z = 0.7;
-			break;
-		case TEAM::TEAM_2:
-			color.x = 1;
-			color.y = 1;
-			break;
-		default:
-			break;
-		}
-
-		newObject = new Objects(pos, color, 2, 0, "È­»ì",
-			float3(ui(dre), ui(dre), 0), 100, 10);
-
-		newObject->setType(ObjectType::OBJECT_ARROW);
-		newObject->setTeam(team);
-		m_ArrowObjects.push_back(newObject);
-		break;*/
-
 	default:
+		std::cout << "undefined object type - " << type <<std::endl;
 		return;
 	}
 }
@@ -306,12 +298,14 @@ void SceneMgr::AddArrow(float3 pos, float3 dir, int id, TEAM team)
 	default:
 		break;
 	}
-	newObject = new Objects(pos, color, 2, 0, "È­»ì",
+	newObject = new Objects(pos, color, 4, 0, "È­»ì",
 		dir, 100, 10);
 
 	newObject->setType(ObjectType::OBJECT_ARROW);
 	newObject->setID(id);
 	newObject->setTeam(team);
+	newObject->setIsProjecttile(true);
+	newObject->setRenderLevel(Render_Level.RENDER_PROJECTILE);
 	m_ArrowObjects.push_back(newObject);
 }
 

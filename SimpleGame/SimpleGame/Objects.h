@@ -7,6 +7,15 @@ class Renderer;
 
 enum TEAM {TEAM_1=0, TEAM_2, NONE};
 
+class RENDER_LEVEL
+{
+public:
+	const float RENDER_GOD					= 0.0f;
+	const float RENDER_BUILDING				= 0.1f;
+	const float RENDER_CHARACTER			= 0.2f;
+	const float RENDER_PROJECTILE			= 0.3f;
+};
+
 class Objects
 {
 protected:
@@ -15,6 +24,8 @@ protected:
 	float m_Size;		//크기
 	float m_Weight;	//무게
 	UINT m_texIndex;
+	float m_RenderLevel; //랜더링 순서 (작을수록 위에 그려짐)
+	bool m_isProjecttile;
 
 	char* m_Name;	//이름
 	int m_id;
@@ -27,7 +38,11 @@ protected:
 
 	bool m_Live;		//게임상에 표현되는 여부 (true - 표현해라, false -  지워진 상태)
 	int m_LifeTime;   //최대 생존 시간
-	int m_Life;			//HP
+
+	bool m_isLifeGuage; //라이프게이지 표시 유무
+	float m_LifeGuage;	//라이프게이지
+	int m_FullLife;		//최대 HP
+	int m_Life;			//현재 HP
 
 	int m_type;			//오브젝트 타입
 	TEAM m_Team;		//팀
@@ -57,6 +72,7 @@ public:
 	}
 	void setWeight(float weight) { m_Weight = weight; }
 	void setType(int type) { m_type = type; }
+	void setIsProjecttile(bool tmp) { m_isProjecttile = tmp; }
 
 	void setLive(bool live) { m_Live = live; }
 	void setName(char* name) { m_Name = name; }
@@ -65,11 +81,13 @@ public:
 	void setMoveDir(float, float, float);
 	void setMoveDir(float3);
 
-	void setminusLife(int tmp) { m_Life -= tmp; }
+	void setminusLife(int tmp);
 	void setCollisionCheck(int tmp) { now_crash_count = tmp; }
 	void setID(int tmp) { m_id = tmp; }
 	void setTexIndex(int tmp) { m_texIndex = tmp; }
 	void setTeam(TEAM tmp) { m_Team = tmp; }
+	void setRenderLevel(float tmp) { m_RenderLevel = tmp; }
+	void setIsLifeGuage(bool tmp) { m_isLifeGuage = tmp; }
 
 	//변수 값 불러오기
 	float3 getPos() const { return m_Pos; }

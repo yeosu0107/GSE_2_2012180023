@@ -4,7 +4,7 @@
 
 
 Objects::Objects() : m_Pos(0, 0, 0), m_Size(0), m_Weight(0), m_Color(0, 0, 0, 0),
-	m_Live(true), m_moveDir(0,0,0), m_moveSpeed(0)
+	m_Live(true), m_moveDir(0, 0, 0), m_moveSpeed(0), m_FullLife(0)
 {
 	m_Name = new char[namebuff];
 	now_crash_count = 0;
@@ -12,40 +12,53 @@ Objects::Objects() : m_Pos(0, 0, 0), m_Size(0), m_Weight(0), m_Color(0, 0, 0, 0)
 	m_LifeTime = 10000;
 	m_texIndex = -1;
 	m_Team = TEAM::NONE;
+	m_RenderLevel = 1.0f;
 
 	m_PrevTime = 0;
 	m_LimitTime = 1;
+	m_LifeGuage = 0;
+	m_isLifeGuage = false;
+
+	m_isProjecttile = false;
 }
 
 
 Objects::Objects(float x, float y, float z, float r, float g, float b, float a, float size, float weight,
 	char* name, float mx, float my, float mz, float speed, int life) : m_Pos(x,y,z), m_Color(r,g,b,a), m_Size(size), m_Weight(weight),
-		m_Live(true), m_moveDir(mx, my, mz), m_moveSpeed(speed), m_Life(life)
+		m_Live(true), m_moveDir(mx, my, mz), m_moveSpeed(speed), m_Life(life), m_FullLife(life)
 {
 	m_Name = name;
 	now_crash_count = 0;
 	m_oobb = new OOBB(m_Pos, m_Size);
 	m_texIndex = -1;
 	m_Team = TEAM::NONE;
+	m_RenderLevel = 1.0f;
 
 	m_PrevTime = 0;
 	m_LimitTime = 1;
+	m_LifeGuage = 1;
+	m_isLifeGuage = false;
+	m_isProjecttile = false;
 
 	m_moveDir.normalize();
 
 }
 
 Objects::Objects(float3 pos, float4 color, float size, float weight, char* name, float3 dir, float speed, int life) :
-	m_Pos(pos), m_Color(color), m_Size(size), m_Weight(weight), m_Live(true), m_moveDir(dir), m_moveSpeed(speed), m_Life(life)
+	m_Pos(pos), m_Color(color), m_Size(size), m_Weight(weight), m_Live(true), m_moveDir(dir), m_moveSpeed(speed), m_Life(life), m_FullLife(life)
 {
 	m_Name = name;
 	now_crash_count = 0;
 	m_oobb = new OOBB(m_Pos, m_Size);
 	m_texIndex = -1;
 	m_Team = TEAM::NONE;
+	m_RenderLevel = 1.0f;
 
 	m_PrevTime = 0;
 	m_LimitTime = 1;
+	m_LifeGuage = 1;
+	m_isLifeGuage = false;
+	m_isProjecttile = false;
 
 	m_moveDir.normalize();
 
@@ -116,10 +129,24 @@ void Objects::Animate()
 
 void Objects::CrashCheck()
 {
-	if (m_Pos.x - m_Size <=-WindowWidth / 2 || m_Pos.x + m_Size>=WindowWidth/2)
-		m_moveDir.x *= -1;
-	if (m_Pos.y - m_Size <=-WindowHeight / 2 || m_Pos.y + m_Size >=WindowHeight/2)
-		m_moveDir.y *= -1;
+	if (m_isProjecttile) {
+		if (m_Pos.x <= -WindowWidth / 2 || m_Pos.x >= WindowWidth / 2)
+			m_Live = false;
+		if (m_Pos.y <= -WindowHeight / 2 || m_Pos.y >= WindowHeight / 2)
+			m_Live = false;
+	}
+	else {
+		if (m_Pos.x - m_Size / 2 <= -WindowWidth / 2 || m_Pos.x + m_Size / 2 >= WindowWidth / 2)
+			m_moveDir.x *= -1.0f;
+		if (m_Pos.y - m_Size / 2 <= -WindowHeight / 2 || m_Pos.y + m_Size / 2 >= WindowHeight / 2)
+			m_moveDir.y *= -1.0f;
+	}
+}
+
+void Objects::setminusLife(int tmp)
+{ 
+	m_Life -= tmp; 
+	m_LifeGuage = (float)m_Life / (float)m_FullLife;
 }
 
 void Objects::OnPrepareRender()
@@ -133,10 +160,15 @@ void Objects::Render(Renderer& g_Renderer)
 		OnPrepareRender();
 		if(m_texIndex==-1)
 			g_Renderer.DrawSolidRect(m_Pos.x, m_Pos.y, m_Pos.z, m_Size,
-				m_Color.x, m_Color.y, m_Color.z, m_Color.w);
+				m_Color.x, m_Color.y, m_Color.z, m_Color.w, m_RenderLevel);
 		else {
 			g_Renderer.DrawTexturedRect(m_Pos.x, m_Pos.y, m_Pos.z, m_Size, 
-				m_Color.x, m_Color.y, m_Color.z, m_Color.w, m_texIndex);
+				m_Color.x, m_Color.y, m_Color.z, m_Color.w, m_texIndex, m_RenderLevel);
+		}
+
+		if (m_isLifeGuage) {
+			g_Renderer.DrawSolidRectGauge(m_Pos.x, m_Pos.y + m_Size/2 + 15.0f, m_Pos.z, 
+				m_Size, 2, 1, 0, 0, 1, m_LifeGuage, 0.0f);
 		}
 	}
 }

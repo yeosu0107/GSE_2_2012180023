@@ -28,7 +28,7 @@ void RenderScene(void)
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0f, 0.3f, 0.3f, 1.0f);
-
+	glClearDepth(1.0f);
 	DWORD currTime = timeGetTime();
 	float time = (currTime - prevTime)*0.001f;
 	prevTime = currTime;

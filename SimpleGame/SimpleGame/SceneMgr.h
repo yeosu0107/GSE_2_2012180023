@@ -24,7 +24,7 @@ private:
 						OBJECT_BULLET, OBJECT_ARROW};
 
 	int characterID = 0;
-
+	RENDER_LEVEL	Render_Level;
 public:
 	SceneMgr();
 	~SceneMgr();
