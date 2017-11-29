@@ -21,9 +21,21 @@ class Objects
 protected:
 	float3 m_Pos;		//위치
 	float4 m_Color;	//색깔
+	float4 m_teamColor; //팀칼라
 	float m_Size;		//크기
 	float m_Weight;	//무게
-	UINT m_texIndex;
+	
+	UINT m_texIndex;		//텍스쳐
+	bool	m_IsAnimate;		//애니메이션이 있는가?
+	int		m_CurrXSeq;		//현재x시퀸스
+	int		m_CurrYSeq;		//현재y시퀸스
+	int		m_MaxXSeq;		//최대x시퀸스
+	int		m_MaxYSeq;		//최대y시퀸스
+
+	bool	m_IsPaticle;			//파티클이 있는가
+	UINT	m_PaticleTexIndex;	//파티클 텍스쳐
+	float	m_paticleTime;
+
 	float m_RenderLevel; //랜더링 순서 (작을수록 위에 그려짐)
 	bool m_isProjecttile;
 
@@ -84,8 +96,27 @@ public:
 	void setminusLife(int tmp);
 	void setCollisionCheck(int tmp) { now_crash_count = tmp; }
 	void setID(int tmp) { m_id = tmp; }
-	void setTexIndex(int tmp) { m_texIndex = tmp; }
-	void setTeam(TEAM tmp) { m_Team = tmp; }
+	void setTexIndex(int tmp) { 	m_texIndex = tmp; }
+	void setTexSeq(int x, int y) {
+		m_IsAnimate = true;
+		m_CurrXSeq = 0;
+		m_CurrYSeq = 0;
+		m_MaxXSeq = x;
+		m_MaxYSeq = y;
+	}
+	void setPaticle(UINT tex) {
+		m_IsPaticle = true;
+		m_PaticleTexIndex = tex;
+		m_paticleTime = 0.0f;
+	}
+
+	void setTeam(TEAM tmp) { 
+		m_Team = tmp; 
+		if (tmp == TEAM::TEAM_1)
+			m_teamColor = float4(1, 0, 0, 1);
+		else if (tmp == TEAM::TEAM_2)
+			m_teamColor = float4(0, 0, 1, 1);
+	}
 	void setRenderLevel(float tmp) { m_RenderLevel = tmp; }
 	void setIsLifeGuage(bool tmp) { m_isLifeGuage = tmp; }
 

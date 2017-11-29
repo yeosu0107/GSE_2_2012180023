@@ -3,7 +3,7 @@
 #include <list>
 
 const int MAX_OBJECT_COUNT = 1500;
-const int MAX_TEXTURE_COUNT = 3;
+const int MAX_TEXTURE_COUNT = 6;
 
 class SceneMgr
 {

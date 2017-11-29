@@ -4,7 +4,7 @@
 
 
 Objects::Objects() : m_Pos(0, 0, 0), m_Size(0), m_Weight(0), m_Color(0, 0, 0, 0),
-	m_Live(true), m_moveDir(0, 0, 0), m_moveSpeed(0), m_FullLife(0)
+	m_Live(true), m_moveDir(0, 0, 0), m_moveSpeed(0), m_FullLife(0), m_teamColor(1,1,1,1)
 {
 	m_Name = new char[namebuff];
 	now_crash_count = 0;
@@ -12,6 +12,7 @@ Objects::Objects() : m_Pos(0, 0, 0), m_Size(0), m_Weight(0), m_Color(0, 0, 0, 0)
 	m_LifeTime = 10000;
 	m_texIndex = -1;
 	m_Team = TEAM::NONE;
+	
 	m_RenderLevel = 1.0f;
 
 	m_PrevTime = 0;
@@ -20,12 +21,20 @@ Objects::Objects() : m_Pos(0, 0, 0), m_Size(0), m_Weight(0), m_Color(0, 0, 0, 0)
 	m_isLifeGuage = false;
 
 	m_isProjecttile = false;
+	m_CurrXSeq = -1;
+	m_CurrYSeq = -1;
+	m_MaxXSeq = -1;
+	m_MaxYSeq = -1;
+	m_IsAnimate = false;
+
+	m_IsPaticle = false;
+	m_paticleTime = -1.0f;
 }
 
 
 Objects::Objects(float x, float y, float z, float r, float g, float b, float a, float size, float weight,
 	char* name, float mx, float my, float mz, float speed, int life) : m_Pos(x,y,z), m_Color(r,g,b,a), m_Size(size), m_Weight(weight),
-		m_Live(true), m_moveDir(mx, my, mz), m_moveSpeed(speed), m_Life(life), m_FullLife(life)
+		m_Live(true), m_moveDir(mx, my, mz), m_moveSpeed(speed), m_Life(life), m_FullLife(life), m_teamColor(1, 1, 1, 1)
 {
 	m_Name = name;
 	now_crash_count = 0;
@@ -33,6 +42,14 @@ Objects::Objects(float x, float y, float z, float r, float g, float b, float a, 
 	m_texIndex = -1;
 	m_Team = TEAM::NONE;
 	m_RenderLevel = 1.0f;
+	m_CurrXSeq = -1;
+	m_CurrYSeq = -1;
+	m_MaxXSeq = -1;
+	m_MaxYSeq = -1;
+	m_IsAnimate = false;
+
+	m_IsPaticle = false;
+	m_paticleTime = -1.0f;
 
 	m_PrevTime = 0;
 	m_LimitTime = 1;
@@ -45,7 +62,7 @@ Objects::Objects(float x, float y, float z, float r, float g, float b, float a, 
 }
 
 Objects::Objects(float3 pos, float4 color, float size, float weight, char* name, float3 dir, float speed, int life) :
-	m_Pos(pos), m_Color(color), m_Size(size), m_Weight(weight), m_Live(true), m_moveDir(dir), m_moveSpeed(speed), m_Life(life), m_FullLife(life)
+	m_Pos(pos), m_Color(color), m_Size(size), m_Weight(weight), m_Live(true), m_moveDir(dir), m_moveSpeed(speed), m_Life(life), m_FullLife(life), m_teamColor(1, 1, 1, 1)
 {
 	m_Name = name;
 	now_crash_count = 0;
@@ -53,6 +70,14 @@ Objects::Objects(float3 pos, float4 color, float size, float weight, char* name,
 	m_texIndex = -1;
 	m_Team = TEAM::NONE;
 	m_RenderLevel = 1.0f;
+	m_CurrXSeq = -1;
+	m_CurrYSeq = -1;
+	m_MaxXSeq = -1;
+	m_MaxYSeq = -1;
+	m_IsAnimate = false;
+
+	m_IsPaticle = false;
+	m_paticleTime = -1.0f;
 
 	m_PrevTime = 0;
 	m_LimitTime = 1;
@@ -162,13 +187,22 @@ void Objects::Render(Renderer& g_Renderer)
 			g_Renderer.DrawSolidRect(m_Pos.x, m_Pos.y, m_Pos.z, m_Size,
 				m_Color.x, m_Color.y, m_Color.z, m_Color.w, m_RenderLevel);
 		else {
-			g_Renderer.DrawTexturedRect(m_Pos.x, m_Pos.y, m_Pos.z, m_Size, 
-				m_Color.x, m_Color.y, m_Color.z, m_Color.w, m_texIndex, m_RenderLevel);
+			if (m_IsAnimate) {
+				g_Renderer.DrawTexturedRectSeq(m_Pos.x, m_Pos.y, m_Pos.z, m_Size, m_Color.x, m_Color.y, m_Color.z, m_Color.w,
+					m_texIndex, m_CurrXSeq, m_CurrYSeq, m_MaxXSeq, m_MaxYSeq, m_RenderLevel);
+			}
+			else {
+				g_Renderer.DrawTexturedRect(m_Pos.x, m_Pos.y, m_Pos.z, m_Size,
+					m_Color.x, m_Color.y, m_Color.z, m_Color.w, m_texIndex, m_RenderLevel);
+			}
 		}
 
 		if (m_isLifeGuage) {
 			g_Renderer.DrawSolidRectGauge(m_Pos.x, m_Pos.y + m_Size/2 + 15.0f, m_Pos.z, 
-				m_Size, 2, 1, 0, 0, 1, m_LifeGuage, 0.0f);
+				m_Size, 2, m_teamColor.x, m_teamColor.y, m_teamColor.z, m_teamColor.w, m_LifeGuage, 0.0f);
+		}
+		if (m_IsPaticle) {
+			g_Renderer.DrawParticle(m_Pos.x, m_Pos.y, m_Pos.z, m_Size, 1, 1, 1, 1, m_moveDir.x*-1, m_moveDir.y*-1, m_PaticleTexIndex, m_paticleTime);
 		}
 	}
 }
@@ -183,8 +217,18 @@ bool Objects::Update(float ElapsedTime)
 
 		DWORD currTime = timeGetTime() *0.001f;
 
-		
-
+		if (m_IsAnimate) {
+			m_CurrXSeq++;
+			if (m_CurrXSeq > m_MaxXSeq) {
+				m_CurrXSeq = 0;
+				m_CurrYSeq++;
+				if (m_CurrYSeq > m_MaxYSeq)
+					m_CurrYSeq = 0;
+			}
+		}
+		if (m_IsPaticle) {
+			m_paticleTime += 0.1f;
+		}
 		/*m_LifeTime -= 1*ElapsedTime;
 		if (m_LifeTime < 0)
 			m_Live = false;*/

@@ -21,6 +21,10 @@ SceneMgr::SceneMgr() {
 	}
 	m_texImage[0] = m_Renderer->CreatePngTexture("Resource/pic1.png");
 	m_texImage[1] = m_Renderer->CreatePngTexture("Resource/pic2.png");
+	m_texImage[2] = m_Renderer->CreatePngTexture("Resource/BackGround.png");
+	m_texImage[3] = m_Renderer->CreatePngTexture("Resource/pic3.png");
+	m_texImage[4] = m_Renderer->CreatePngTexture("Resource/paticle1.png");
+	m_texImage[5] = m_Renderer->CreatePngTexture("Resource/paticle2.png");
 }
 
 SceneMgr::~SceneMgr() {
@@ -31,12 +35,12 @@ SceneMgr::~SceneMgr() {
 void SceneMgr::BuildObjects() {
 	//ºÏ
 	AddObject(float3(0, WindowHeight / 2 - 150, 0), float3(0, 0, 0), ObjectType::OBJECT_BUILDING, TEAM::TEAM_1, m_texImage[0]);
-	AddObject(float3(-WindowWidth/2 + 50, WindowHeight / 2 - 100, 0), float3(0, 0, 0), ObjectType::OBJECT_BUILDING, TEAM::TEAM_1, m_texImage[0]);
-	AddObject(float3(+WindowWidth/2 - 50, WindowHeight / 2 - 100, 0), float3(0, 0, 0), ObjectType::OBJECT_BUILDING, TEAM::TEAM_1, m_texImage[0]);
+	AddObject(float3(-WindowWidth/2 + 60, WindowHeight / 2 - 100, 0), float3(0, 0, 0), ObjectType::OBJECT_BUILDING, TEAM::TEAM_1, m_texImage[0]);
+	AddObject(float3(+WindowWidth/2 - 60, WindowHeight / 2 - 100, 0), float3(0, 0, 0), ObjectType::OBJECT_BUILDING, TEAM::TEAM_1, m_texImage[0]);
 	//³²
 	AddObject(float3(0, -WindowHeight / 2 + 150, 0), float3(0, 0, 0), ObjectType::OBJECT_BUILDING, TEAM::TEAM_2, m_texImage[1]);
-	AddObject(float3(-WindowWidth/2 + 50, -WindowHeight / 2 + 100, 0), float3(0, 0, 0), ObjectType::OBJECT_BUILDING, TEAM::TEAM_2, m_texImage[1]);
-	AddObject(float3(+WindowWidth/2 - 50, -WindowHeight / 2 + 100, 0), float3(0, 0, 0), ObjectType::OBJECT_BUILDING, TEAM::TEAM_2, m_texImage[1]);
+	AddObject(float3(-WindowWidth/2 + 60, -WindowHeight / 2 + 100, 0), float3(0, 0, 0), ObjectType::OBJECT_BUILDING, TEAM::TEAM_2, m_texImage[1]);
+	AddObject(float3(+WindowWidth/2 - 60, -WindowHeight / 2 + 100, 0), float3(0, 0, 0), ObjectType::OBJECT_BUILDING, TEAM::TEAM_2, m_texImage[1]);
 }
 
 void SceneMgr::Collision() {
@@ -185,6 +189,9 @@ void SceneMgr::Update(float ElapsedTime) {
 }
 
 void SceneMgr::Render() {
+	m_Renderer->DrawTexturedRect(0, 0, 0, WindowHeight, 1, 1, 1, 1, 3, 0.9f); //¹è°æÈ­¸é
+	//m_Renderer->DrawTexturedRectSeq(0 ,0, 0, 50, 1, 1, 1, 1, 4, 5, 0, 6, 1, 0.0f);
+
 	for (auto& character : m_CharacterObjects) {
 		character->Render(*m_Renderer);
 	}
@@ -240,37 +247,44 @@ void SceneMgr::AddObject(float3 pos, float3 dir, int type, TEAM team, int texInd
 			break;
 		}
 
-		newObject = new Objects(pos, color, 30, 0, "Ä³¸¯ÅÍ",
+		newObject = new Objects(pos, color, 50, 0, "Ä³¸¯ÅÍ",
 			dir, 300, 100);
 
 		newObject->setType(0.3f);
 		newObject->setID(characterID);
 		characterID += 1;
 		newObject->setTeam(team);
+
+		newObject->setTexIndex(m_texImage[3]);
+		newObject->setTexSeq(6, 1);
+
 		newObject->setRenderLevel(Render_Level.RENDER_CHARACTER);
 		newObject->setIsLifeGuage(true);
 		m_CharacterObjects.push_back(newObject);
 		break;
 
 	case ObjectType::OBJECT_BULLET:
+		newObject = new Objects(pos, color, 4, 0, "ÃÑ¾Ë",
+			dir, 600, 15);
+
 		switch (team) {
 		case TEAM::TEAM_1:
 			color.x = 1;
+			newObject->setPaticle(m_texImage[5]);
 			break;
 		case TEAM::TEAM_2:
 			color.z = 1;
+			newObject->setPaticle(m_texImage[4]);
 			break;
 		default:
 			break;
 		}
-
-		newObject = new Objects(pos, color, 4, 0, "ÃÑ¾Ë",
-			dir, 600, 15);
 		
 		newObject->setType(ObjectType::OBJECT_BULLET);
 		newObject->setTeam(team);
 		newObject->setRenderLevel(Render_Level.RENDER_PROJECTILE);
 		newObject->setIsProjecttile(true);
+		
 		m_BulletObjects.push_back(newObject);
 		break;
 
