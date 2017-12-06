@@ -1,14 +1,17 @@
 #pragma once
 #include "Objects.h"
+#include "Sound.h"
 #include <list>
 
 const int MAX_OBJECT_COUNT = 1500;
 const int MAX_TEXTURE_COUNT = 6;
+const int MAX_SOUND_COUNT = 10;
 
 class SceneMgr
 {
 private:
-	Renderer* m_Renderer;
+	Renderer*	m_Renderer;
+	Sound*		m_Sound;
 
 	std::list<Objects*> m_BuildingObjects;
 	std::list<Objects*> m_BulletObjects;
@@ -16,6 +19,8 @@ private:
 	std::list<Objects*> m_ArrowObjects;
 
 	UINT m_texImage[MAX_TEXTURE_COUNT];
+
+	int		m_soundIndex[MAX_SOUND_COUNT];
 
 	float timeLimit[2] = { 1.0f, 2.0f };
 	DWORD prevTime[2] = { 0, 0 };

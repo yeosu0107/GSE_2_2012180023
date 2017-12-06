@@ -3,6 +3,7 @@
 #include "Renderer.h"
 
 
+
 Objects::Objects() : m_Pos(0, 0, 0), m_Size(0), m_Weight(0), m_Color(0, 0, 0, 0),
 	m_Live(true), m_moveDir(0, 0, 0), m_moveSpeed(0), m_FullLife(0), m_teamColor(1,1,1,1)
 {
@@ -19,6 +20,7 @@ Objects::Objects() : m_Pos(0, 0, 0), m_Size(0), m_Weight(0), m_Color(0, 0, 0, 0)
 	m_LimitTime = 1;
 	m_LifeGuage = 0;
 	m_isLifeGuage = false;
+	sprintf_s(m_buf, "%d/%d", (int)m_Life, (int)m_FullLife);
 
 	m_isProjecttile = false;
 	m_CurrXSeq = -1;
@@ -29,6 +31,7 @@ Objects::Objects() : m_Pos(0, 0, 0), m_Size(0), m_Weight(0), m_Color(0, 0, 0, 0)
 
 	m_IsPaticle = false;
 	m_paticleTime = -1.0f;
+
 }
 
 
@@ -58,7 +61,7 @@ Objects::Objects(float x, float y, float z, float r, float g, float b, float a, 
 	m_isProjecttile = false;
 
 	m_moveDir.normalize();
-
+	sprintf_s(m_buf, "%d/%d", (int)m_Life, (int)m_FullLife);
 }
 
 Objects::Objects(float3 pos, float4 color, float size, float weight, char* name, float3 dir, float speed, int life) :
@@ -86,7 +89,7 @@ Objects::Objects(float3 pos, float4 color, float size, float weight, char* name,
 	m_isProjecttile = false;
 
 	m_moveDir.normalize();
-
+	sprintf_s(m_buf, "%d/%d", (int)m_Life, (int)m_FullLife);
 }
 
 Objects::~Objects()
@@ -172,6 +175,7 @@ void Objects::setminusLife(int tmp)
 { 
 	m_Life -= tmp; 
 	m_LifeGuage = (float)m_Life / (float)m_FullLife;
+	sprintf_s(m_buf, "%d/%d", (int)m_Life, (int)m_FullLife);
 }
 
 void Objects::OnPrepareRender()
@@ -199,7 +203,9 @@ void Objects::Render(Renderer& g_Renderer)
 
 		if (m_isLifeGuage) {
 			g_Renderer.DrawSolidRectGauge(m_Pos.x, m_Pos.y + m_Size/2 + 15.0f, m_Pos.z, 
-				m_Size, 2, m_teamColor.x, m_teamColor.y, m_teamColor.z, m_teamColor.w, m_LifeGuage, 0.0f);
+				m_Size, 12, m_teamColor.x, m_teamColor.y, m_teamColor.z, m_teamColor.w, m_LifeGuage, 0.0f);
+
+			g_Renderer.DrawTextW(m_Pos.x-m_Size/2, m_Pos.y + m_Size / 2 + 10.0f, GLUT_BITMAP_HELVETICA_12, 1, 1, 1, m_buf);
 		}
 		if (m_IsPaticle) {
 			g_Renderer.DrawParticle(m_Pos.x, m_Pos.y, m_Pos.z, m_Size, 1, 1, 1, 1, m_moveDir.x*-1, m_moveDir.y*-1, m_PaticleTexIndex, m_paticleTime);

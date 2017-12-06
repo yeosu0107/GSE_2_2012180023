@@ -11,7 +11,6 @@
 #define WindowHeight 800
 
 
-
 struct float3
 {
 	float x, y, z;

@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "SceneMgr.h"
 #include "Renderer.h"
+
 #include <random>
 
 std::default_random_engine dre;
@@ -9,12 +10,13 @@ std::default_random_engine dre;
 std::uniform_int_distribution<int> uix(-5, 5);
 std::uniform_int_distribution<int> uiy(0, 5);
 
-std::uniform_int_distribution<int> posx(-WindowWidth/2 + 30, WindowWidth/2 -30);
+std::uniform_int_distribution<int> posx(-WindowWidth/2 + 50, WindowWidth/2 - 50);
 std::uniform_int_distribution<int> posy(30, 100);
 
 
 SceneMgr::SceneMgr() {
 	m_Renderer = new Renderer(WindowWidth, WindowHeight);
+	
 	if (!m_Renderer->IsInitialized())
 	{
 		std::cout << "Renderer could not be initialized.. \n";
@@ -25,10 +27,19 @@ SceneMgr::SceneMgr() {
 	m_texImage[3] = m_Renderer->CreatePngTexture("Resource/pic3.png");
 	m_texImage[4] = m_Renderer->CreatePngTexture("Resource/paticle1.png");
 	m_texImage[5] = m_Renderer->CreatePngTexture("Resource/paticle2.png");
+
+	m_Sound = new Sound();
+	m_soundIndex[0] = m_Sound->CreateSound("./Dependencies/SoundSamples/ophelia.mp3");
+	m_soundIndex[1] = m_Sound->CreateSound("./Dependencies/SoundSamples/explosion.wav");
+	m_soundIndex[2] = m_Sound->CreateSound("./Dependencies/SoundSamples/create.mp3");
+	m_Sound->PlaySound(m_soundIndex[0], true, 0.2f);
+
 }
-
 SceneMgr::~SceneMgr() {
-
+	for (int i = 0; i < MAX_SOUND_COUNT; ++i) {
+		m_Sound->DeleteSound(m_soundIndex[i]);
+	}
+	
 }
 
 
@@ -57,6 +68,8 @@ void SceneMgr::Collision() {
 				damage = character->getLife();
 				character->setminusLife(damage);
 				building->setminusLife(damage);
+				//m_Renderer->SetSceneTransform(1, 1, 1, 1);
+				m_Sound->PlaySoundW(m_soundIndex[1], false, 1.0f);
 			}
 		}
 

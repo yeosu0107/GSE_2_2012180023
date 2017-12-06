@@ -55,6 +55,7 @@ protected:
 	float m_LifeGuage;	//라이프게이지
 	int m_FullLife;		//최대 HP
 	int m_Life;			//현재 HP
+	char m_buf[10];	//라이프게이지 텍스트
 
 	int m_type;			//오브젝트 타입
 	TEAM m_Team;		//팀
