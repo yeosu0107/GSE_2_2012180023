@@ -8,7 +8,7 @@
 std::default_random_engine dre;
 
 std::uniform_int_distribution<int> uix(-5, 5);
-std::uniform_int_distribution<int> uiy(0, 5);
+std::uniform_int_distribution<int> uiy(3, 5);
 
 std::uniform_int_distribution<int> posx(-WindowWidth/2 + 50, WindowWidth/2 - 50);
 std::uniform_int_distribution<int> posy(30, 100);
@@ -27,6 +27,11 @@ SceneMgr::SceneMgr() {
 	m_texImage[3] = m_Renderer->CreatePngTexture("Resource/pic3.png");
 	m_texImage[4] = m_Renderer->CreatePngTexture("Resource/paticle1.png");
 	m_texImage[5] = m_Renderer->CreatePngTexture("Resource/paticle2.png");
+	m_texClimate = m_Renderer->CreatePngTexture("Resource/snow3.png");
+
+	m_Climatetime = 0.0f;
+	m_climateDir = 1.5f;
+	m_controlValue = 1.0f;
 
 	m_Sound = new Sound();
 	m_soundIndex[0] = m_Sound->CreateSound("./Dependencies/SoundSamples/ophelia.mp3");
@@ -132,7 +137,14 @@ void SceneMgr::Update(float ElapsedTime) {
 	if (currTime - prevTime[0] > timeLimit[0]) {
 		CreateCharacterObjects(TEAM::TEAM_1); //인공지능이 캐릭터를 생성
 		prevTime[0] = currTime;
+
+		if (m_climateDir >= 5.0f || m_climateDir<-5.0f)
+			m_controlValue *= -1.0f;
+		
 	}
+
+	m_Climatetime += 0.01f;
+	m_climateDir += m_controlValue*0.1f;
 
 	std::list<Objects*>::iterator iter;
 
@@ -202,8 +214,8 @@ void SceneMgr::Update(float ElapsedTime) {
 }
 
 void SceneMgr::Render() {
-	m_Renderer->DrawTexturedRect(0, 0, 0, WindowHeight, 1, 1, 1, 1, 3, 0.9f); //배경화면
-	//m_Renderer->DrawTexturedRectSeq(0 ,0, 0, 50, 1, 1, 1, 1, 4, 5, 0, 6, 1, 0.0f);
+	m_Renderer->DrawTexturedRect(0, 0, 0, WindowHeight, 1, 1, 1, 1, m_texImage[2], 0.9f); //배경화면
+	m_Renderer->DrawParticleClimate(0, 0, 0, 1, 1, 1, 1, 1, m_climateDir, -0.5f, m_texClimate, m_Climatetime, 0.0f);
 
 	for (auto& character : m_CharacterObjects) {
 		character->Render(*m_Renderer);
@@ -278,7 +290,7 @@ void SceneMgr::AddObject(float3 pos, float3 dir, int type, TEAM team, int texInd
 
 	case ObjectType::OBJECT_BULLET:
 		newObject = new Objects(pos, color, 4, 0, "총알",
-			dir, 600, 15);
+			dir, 300, 15);
 
 		switch (team) {
 		case TEAM::TEAM_1:
@@ -326,7 +338,7 @@ void SceneMgr::AddArrow(float3 pos, float3 dir, int id, TEAM team)
 		break;
 	}
 	newObject = new Objects(pos, color, 4, 0, "화살",
-		dir, 100, 10);
+		dir, 400, 10);
 
 	newObject->setType(ObjectType::OBJECT_ARROW);
 	newObject->setID(id);

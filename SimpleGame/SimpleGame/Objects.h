@@ -31,6 +31,7 @@ protected:
 	int		m_CurrYSeq;		//현재y시퀸스
 	int		m_MaxXSeq;		//최대x시퀸스
 	int		m_MaxYSeq;		//최대y시퀸스
+	float	m_aniTime;
 
 	bool	m_IsPaticle;			//파티클이 있는가
 	UINT	m_PaticleTexIndex;	//파티클 텍스쳐

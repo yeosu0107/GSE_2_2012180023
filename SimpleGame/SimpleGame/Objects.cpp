@@ -28,6 +28,7 @@ Objects::Objects() : m_Pos(0, 0, 0), m_Size(0), m_Weight(0), m_Color(0, 0, 0, 0)
 	m_MaxXSeq = -1;
 	m_MaxYSeq = -1;
 	m_IsAnimate = false;
+	m_aniTime = 0.0f;
 
 	m_IsPaticle = false;
 	m_paticleTime = -1.0f;
@@ -50,6 +51,7 @@ Objects::Objects(float x, float y, float z, float r, float g, float b, float a, 
 	m_MaxXSeq = -1;
 	m_MaxYSeq = -1;
 	m_IsAnimate = false;
+	m_aniTime = 0.0f;
 
 	m_IsPaticle = false;
 	m_paticleTime = -1.0f;
@@ -78,6 +80,7 @@ Objects::Objects(float3 pos, float4 color, float size, float weight, char* name,
 	m_MaxXSeq = -1;
 	m_MaxYSeq = -1;
 	m_IsAnimate = false;
+	m_aniTime = 0.0f;
 
 	m_IsPaticle = false;
 	m_paticleTime = -1.0f;
@@ -208,7 +211,7 @@ void Objects::Render(Renderer& g_Renderer)
 			g_Renderer.DrawTextW(m_Pos.x-m_Size/2, m_Pos.y + m_Size / 2 + 10.0f, GLUT_BITMAP_HELVETICA_12, 1, 1, 1, m_buf);
 		}
 		if (m_IsPaticle) {
-			g_Renderer.DrawParticle(m_Pos.x, m_Pos.y, m_Pos.z, m_Size, 1, 1, 1, 1, m_moveDir.x*-1, m_moveDir.y*-1, m_PaticleTexIndex, m_paticleTime);
+			g_Renderer.DrawParticle(m_Pos.x, m_Pos.y, m_Pos.z, m_Size, 1, 1, 1, 1, m_moveDir.x*-1, m_moveDir.y*-1, m_PaticleTexIndex, m_paticleTime, m_RenderLevel);
 		}
 	}
 }
@@ -224,16 +227,20 @@ bool Objects::Update(float ElapsedTime)
 		DWORD currTime = timeGetTime() *0.001f;
 
 		if (m_IsAnimate) {
-			m_CurrXSeq++;
-			if (m_CurrXSeq > m_MaxXSeq) {
-				m_CurrXSeq = 0;
-				m_CurrYSeq++;
-				if (m_CurrYSeq > m_MaxYSeq)
-					m_CurrYSeq = 0;
+			m_aniTime += 0.1f;
+			if (m_aniTime >= 0.3f) {
+				m_aniTime = 0;
+				m_CurrXSeq++;
+				if (m_CurrXSeq > m_MaxXSeq) {
+					m_CurrXSeq = 0;
+					m_CurrYSeq++;
+					if (m_CurrYSeq > m_MaxYSeq)
+						m_CurrYSeq = 0;
+				}
 			}
 		}
 		if (m_IsPaticle) {
-			m_paticleTime += 0.1f;
+			m_paticleTime += 0.01f;
 		}
 		/*m_LifeTime -= 1*ElapsedTime;
 		if (m_LifeTime < 0)

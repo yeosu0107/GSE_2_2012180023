@@ -19,6 +19,11 @@ private:
 	std::list<Objects*> m_ArrowObjects;
 
 	UINT m_texImage[MAX_TEXTURE_COUNT];
+	UINT m_texClimate;
+
+	float m_Climatetime;
+	float m_climateDir;
+	float m_controlValue;
 
 	int		m_soundIndex[MAX_SOUND_COUNT];
 
