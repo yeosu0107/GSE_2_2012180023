@@ -90,8 +90,8 @@ Objects::Objects(float3 pos, float4 color, float size, float weight, char* name,
 	m_LifeGuage = 1;
 	m_isLifeGuage = false;
 	m_isProjecttile = false;
-
-	m_moveDir.normalize();
+	if(m_moveDir.x!=0)
+		m_moveDir.normalize();
 	sprintf_s(m_buf, "%d/%d", (int)m_Life, (int)m_FullLife);
 }
 
@@ -155,7 +155,43 @@ void Objects::Move(float ElapsedTime, float3 moveValue)
 
 void Objects::Animate()
 {
+	if (m_IsAnimate) {
+		
+		/*if (m_moveDir.x > 0) {
+			m_aniState = 1;
+			m_CurrYSeq = 0;
+		}
+		else {
+			m_aniState = -1;
+			m_CurrYSeq = m_divide;
+		}*/
 
+		m_aniTime += 0.1f;
+		if (m_aniTime >= 0.5f) {
+			m_aniTime = 0;
+			m_CurrXSeq++;
+			if (m_CurrXSeq > m_MaxXSeq) {
+				m_CurrXSeq = 0;
+				m_CurrYSeq++;
+
+				if (m_aniState == 1) {
+					if (m_CurrYSeq > m_divide-1) {
+						m_CurrYSeq = 0;
+
+						if (m_Life == 1)
+							m_Life = 0; //이펙트 효과 제거
+					}
+				}
+				else if (m_aniState == -1) {
+					if (m_CurrYSeq > m_MaxYSeq-1)
+						m_CurrYSeq = m_divide;
+
+					if (m_Life == 1)
+						m_Life = 0; //이펙트 효과 제거
+				}
+			}
+		}
+	}
 }
 
 void Objects::CrashCheck()
@@ -167,8 +203,19 @@ void Objects::CrashCheck()
 			m_Live = false;
 	}
 	else {
-		if (m_Pos.x - m_Size / 2 <= -WindowWidth / 2 || m_Pos.x + m_Size / 2 >= WindowWidth / 2)
+		if (m_Pos.x - m_Size / 2 <= -WindowWidth / 2 || m_Pos.x + m_Size / 2 >= WindowWidth / 2) {
 			m_moveDir.x *= -1.0f;
+
+			if (m_moveDir.x > 0) {
+				m_aniState = 1;
+				m_CurrYSeq = 0;
+			} 
+			else {
+				m_aniState = -1;
+				m_CurrYSeq = m_divide;
+			}
+		}
+			
 		if (m_Pos.y - m_Size / 2 <= -WindowHeight / 2 || m_Pos.y + m_Size / 2 >= WindowHeight / 2)
 			m_moveDir.y *= -1.0f;
 	}
@@ -226,19 +273,7 @@ bool Objects::Update(float ElapsedTime)
 
 		DWORD currTime = timeGetTime() *0.001f;
 
-		if (m_IsAnimate) {
-			m_aniTime += 0.1f;
-			if (m_aniTime >= 0.3f) {
-				m_aniTime = 0;
-				m_CurrXSeq++;
-				if (m_CurrXSeq > m_MaxXSeq) {
-					m_CurrXSeq = 0;
-					m_CurrYSeq++;
-					if (m_CurrYSeq > m_MaxYSeq)
-						m_CurrYSeq = 0;
-				}
-			}
-		}
+		
 		if (m_IsPaticle) {
 			m_paticleTime += 0.01f;
 		}

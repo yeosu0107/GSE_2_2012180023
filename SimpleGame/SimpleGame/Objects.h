@@ -31,6 +31,8 @@ protected:
 	int		m_CurrYSeq;		//현재y시퀸스
 	int		m_MaxXSeq;		//최대x시퀸스
 	int		m_MaxYSeq;		//최대y시퀸스
+	int		m_aniState;		//방향 상태
+	int		m_divide;			//애니메이션 나누기
 	float	m_aniTime;
 
 	bool	m_IsPaticle;			//파티클이 있는가
@@ -105,6 +107,25 @@ public:
 		m_CurrYSeq = 0;
 		m_MaxXSeq = x;
 		m_MaxYSeq = y;
+
+		if (m_MaxYSeq > 5) {
+			m_divide = y / 2;
+
+			if (m_moveDir.x > 0) {
+				m_aniState = 1;
+				m_CurrYSeq = 0;
+			}
+			else {
+				m_aniState = -1;
+				m_CurrYSeq = m_divide;
+			}
+		}
+		else {
+			m_divide = y;
+			m_aniState = 1;
+		}
+
+		
 	}
 	void setPaticle(UINT tex) {
 		m_IsPaticle = true;

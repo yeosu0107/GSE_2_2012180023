@@ -4,7 +4,7 @@
 #include <list>
 
 const int MAX_OBJECT_COUNT = 1500;
-const int MAX_TEXTURE_COUNT = 6;
+const int MAX_TEXTURE_COUNT = 9;
 const int MAX_SOUND_COUNT = 10;
 
 class SceneMgr
@@ -17,6 +17,7 @@ private:
 	std::list<Objects*> m_BulletObjects;
 	std::list<Objects*> m_CharacterObjects;
 	std::list<Objects*> m_ArrowObjects;
+	std::list<Objects*> m_Effects;
 
 	UINT m_texImage[MAX_TEXTURE_COUNT];
 	UINT m_texClimate;
@@ -31,10 +32,14 @@ private:
 	DWORD prevTime[2] = { 0, 0 };
 
 	enum ObjectType {OBJECT_BUILDING=0, OBJECT_CHARACTER, 
-						OBJECT_BULLET, OBJECT_ARROW};
+						OBJECT_BULLET, OBJECT_ARROW,
+						OBJECT_SMALLEXP, OBJECT_BIGEXP};
 
 	int characterID = 0;
 	RENDER_LEVEL	Render_Level;
+
+	int m_WavingCount;
+
 public:
 	SceneMgr();
 	~SceneMgr();
@@ -50,4 +55,5 @@ public:
 	void AddArrow(float3 pos, float3 dir, int id, TEAM team);
 
 	void CreateCharacterObjects(TEAM team);
+	void WavingScene();
 };

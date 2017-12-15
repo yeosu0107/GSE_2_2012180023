@@ -23,10 +23,14 @@ SceneMgr::SceneMgr() {
 	}
 	m_texImage[0] = m_Renderer->CreatePngTexture("Resource/pic1.png");
 	m_texImage[1] = m_Renderer->CreatePngTexture("Resource/pic2.png");
-	m_texImage[2] = m_Renderer->CreatePngTexture("Resource/BackGround.png");
-	m_texImage[3] = m_Renderer->CreatePngTexture("Resource/pic3.png");
+	m_texImage[2] = m_Renderer->CreatePngTexture("Resource/back.png");
+	m_texImage[3] = m_Renderer->CreatePngTexture("Resource/tmp2.png");
 	m_texImage[4] = m_Renderer->CreatePngTexture("Resource/paticle1.png");
 	m_texImage[5] = m_Renderer->CreatePngTexture("Resource/paticle2.png");
+	m_texImage[6] = m_Renderer->CreatePngTexture("Resource/exp1.png");
+	m_texImage[7] = m_Renderer->CreatePngTexture("Resource/exp2.png");
+	m_texImage[8] = m_Renderer->CreatePngTexture("Resource/tmp.png");
+
 	m_texClimate = m_Renderer->CreatePngTexture("Resource/snow3.png");
 
 	m_Climatetime = 0.0f;
@@ -35,10 +39,14 @@ SceneMgr::SceneMgr() {
 
 	m_Sound = new Sound();
 	m_soundIndex[0] = m_Sound->CreateSound("./Dependencies/SoundSamples/ophelia.mp3");
-	m_soundIndex[1] = m_Sound->CreateSound("./Dependencies/SoundSamples/explosion.wav");
+	m_soundIndex[1] = m_Sound->CreateSound("./Dependencies/SoundSamples/explosion1.wav");
 	m_soundIndex[2] = m_Sound->CreateSound("./Dependencies/SoundSamples/create.mp3");
+	m_soundIndex[3] = m_Sound->CreateSound("./Dependencies/SoundSamples/explosion2.wav");
+	m_soundIndex[4] = m_Sound->CreateSound("./Dependencies/SoundSamples/hurt.mp3");
+	
 	m_Sound->PlaySound(m_soundIndex[0], true, 0.2f);
 
+	m_WavingCount = 0;
 }
 SceneMgr::~SceneMgr() {
 	for (int i = 0; i < MAX_SOUND_COUNT; ++i) {
@@ -73,8 +81,13 @@ void SceneMgr::Collision() {
 				damage = character->getLife();
 				character->setminusLife(damage);
 				building->setminusLife(damage);
-				//m_Renderer->SetSceneTransform(1, 1, 1, 1);
-				m_Sound->PlaySoundW(m_soundIndex[1], false, 1.0f);
+				
+				m_Sound->PlaySoundW(m_soundIndex[1], false, 0.5f);
+				float3 tmp = character->getPos();
+				tmp += character->getMoveDir()*character->getSize()*0.5;
+				AddObject(tmp, float3(0, 0, 0), ObjectType::OBJECT_SMALLEXP, TEAM::NONE, 0);
+
+				m_WavingCount += 6;
 			}
 		}
 
@@ -87,6 +100,7 @@ void SceneMgr::Collision() {
 				damage = bullet->getLife();
 				character->setminusLife(damage);
 				bullet->setminusLife(damage);
+				m_Sound->PlaySoundW(m_soundIndex[4], false, 0.5f);
 			}
 		}
 
@@ -101,6 +115,7 @@ void SceneMgr::Collision() {
 				damage = arrow->getLife();
 				character->setminusLife(damage);
 				arrow->setminusLife(damage);
+				m_Sound->PlaySoundW(m_soundIndex[4], false, 0.5f);
 			}
 		}
 	}
@@ -114,6 +129,11 @@ void SceneMgr::Collision() {
 				damage = arrow->getLife();
 				arrow->setminusLife(damage);
 				building->setminusLife(damage);
+
+				m_Sound->PlaySoundW(m_soundIndex[1], false, 0.5f);
+				float3 tmp = arrow->getPos();
+				tmp += arrow->getMoveDir()*arrow->getSize()*0.5;
+				AddObject(tmp, float3(0, 0, 0), ObjectType::OBJECT_SMALLEXP, TEAM::NONE, 0);
 			}
 		}
 
@@ -125,6 +145,11 @@ void SceneMgr::Collision() {
 				damage = bullet->getLife();
 				bullet->setminusLife(damage);
 				building->setminusLife(damage);
+
+				m_Sound->PlaySoundW(m_soundIndex[1], false, 0.5f);
+				float3 tmp = bullet->getPos();
+				tmp += bullet->getMoveDir()*bullet->getSize()*0.5;
+				AddObject(tmp, float3(0, 0, 0), ObjectType::OBJECT_SMALLEXP, TEAM::NONE, 0);
 			}
 		}
 	}
@@ -132,6 +157,8 @@ void SceneMgr::Collision() {
 
 void SceneMgr::Update(float ElapsedTime) {
 	DWORD currTime = timeGetTime() *0.001f;
+
+	WavingScene();
 
 	//1초 간격으로 실행하는 함수
 	if (currTime - prevTime[0] > timeLimit[0]) {
@@ -180,7 +207,10 @@ void SceneMgr::Update(float ElapsedTime) {
 		}
 
 		if (!(*iter)->getLive()) {//Live가 False인 객체 삭제
+			AddObject((*iter)->getPos(), float3(0, 0, 0), ObjectType::OBJECT_BIGEXP, TEAM::NONE, 0);
+			m_Sound->PlaySoundW(m_soundIndex[3], false, 1.0f);
 			m_BuildingObjects.erase(iter++);
+			m_WavingCount += 15;
 		}
 		else {
 			iter++;
@@ -209,13 +239,24 @@ void SceneMgr::Update(float ElapsedTime) {
 		}
 	}
 
+	for (iter = m_Effects.begin(); iter != m_Effects.end(); )
+	{
+		(*iter)->Update(ElapsedTime);
+		if (!(*iter)->getLive()) {//Live가 False인 객체 삭제
+			m_Effects.erase(iter++);
+		}
+		else {
+			iter++;
+		}
+	}
+
 	//오브젝트 충돌체크
 	Collision();
 }
 
 void SceneMgr::Render() {
 	m_Renderer->DrawTexturedRect(0, 0, 0, WindowHeight, 1, 1, 1, 1, m_texImage[2], 0.9f); //배경화면
-	m_Renderer->DrawParticleClimate(0, 0, 0, 1, 1, 1, 1, 1, m_climateDir, -0.5f, m_texClimate, m_Climatetime, 0.0f);
+	m_Renderer->DrawParticleClimate(0, 0, 0, 1, 1, 1, 1, 1, m_climateDir, -0.5f, m_texClimate, m_Climatetime, Render_Level.RENDER_GOD);
 
 	for (auto& character : m_CharacterObjects) {
 		character->Render(*m_Renderer);
@@ -228,6 +269,9 @@ void SceneMgr::Render() {
 	}
 	for (auto& arrow : m_ArrowObjects) {
 		arrow->Render(*m_Renderer);
+	}
+	for (auto& effect : m_Effects) {
+		effect->Render(*m_Renderer);
 	}
 }
 
@@ -261,27 +305,32 @@ void SceneMgr::AddObject(float3 pos, float3 dir, int type, TEAM team, int texInd
 		break;
 
 	case ObjectType::OBJECT_CHARACTER:
+		if (dir.x == 0)
+			dir.x = 1;
+
 		switch (team) {
 		case TEAM::TEAM_1:
+			texIndex = m_texImage[3];
 			color.x = 1;
 			break;
 		case TEAM::TEAM_2:
+			texIndex = m_texImage[8];
 			color.z = 1;
 			break;
 		default:
 			break;
 		}
 
-		newObject = new Objects(pos, color, 50, 0, "캐릭터",
-			dir, 300, 100);
+		newObject = new Objects(pos, color, 70, 0, "캐릭터",
+			dir, 200, 100);
 
 		newObject->setType(0.3f);
 		newObject->setID(characterID);
 		characterID += 1;
 		newObject->setTeam(team);
 
-		newObject->setTexIndex(m_texImage[3]);
-		newObject->setTexSeq(6, 1);
+		newObject->setTexIndex(texIndex);
+		newObject->setTexSeq(4, 6);
 
 		newObject->setRenderLevel(Render_Level.RENDER_CHARACTER);
 		newObject->setIsLifeGuage(true);
@@ -289,8 +338,11 @@ void SceneMgr::AddObject(float3 pos, float3 dir, int type, TEAM team, int texInd
 		break;
 
 	case ObjectType::OBJECT_BULLET:
-		newObject = new Objects(pos, color, 4, 0, "총알",
-			dir, 300, 15);
+		if (dir.x == 0)
+			dir.x = 1;
+
+		newObject = new Objects(pos, color, 5, 0, "총알",
+			dir, 200, 15);
 
 		switch (team) {
 		case TEAM::TEAM_1:
@@ -311,6 +363,24 @@ void SceneMgr::AddObject(float3 pos, float3 dir, int type, TEAM team, int texInd
 		newObject->setIsProjecttile(true);
 		
 		m_BulletObjects.push_back(newObject);
+		break;
+
+	case ObjectType::OBJECT_SMALLEXP:
+		newObject = new Objects(pos, color, 50, 0, "폭팔1",
+			float3(0,0,0), 0, 1);
+		newObject->setTexIndex(m_texImage[6]);
+		newObject->setTexSeq(4, 4);
+		newObject->setRenderLevel(Render_Level.RENDER_GOD);
+		m_Effects.push_back(newObject);
+		break;
+	case ObjectType::OBJECT_BIGEXP:
+		newObject = new Objects(pos, color, 100, 0, "폭팔2",
+			float3(0, 0, 0), 0, 1);
+
+		newObject->setTexIndex(m_texImage[7]);
+		newObject->setTexSeq(5, 3);
+		newObject->setRenderLevel(Render_Level.RENDER_GOD);
+		m_Effects.push_back(newObject);
 		break;
 
 	default:
@@ -337,7 +407,7 @@ void SceneMgr::AddArrow(float3 pos, float3 dir, int id, TEAM team)
 	default:
 		break;
 	}
-	newObject = new Objects(pos, color, 4, 0, "화살",
+	newObject = new Objects(pos, color, 10, 0, "화살",
 		dir, 400, 10);
 
 	newObject->setType(ObjectType::OBJECT_ARROW);
@@ -355,4 +425,26 @@ void SceneMgr::CreateCharacterObjects(TEAM team)
 	dir.y *= -1;
 
 	AddObject(pos, dir, ObjectType::OBJECT_CHARACTER, team, -1);
+}
+
+void SceneMgr::WavingScene()
+{
+	if (m_WavingCount <= 0) {
+		m_Renderer->SetSceneTransform(0, 0, 1, 1);
+		return;
+	}
+
+	switch (m_WavingCount % 3) {
+	case 0:
+		m_Renderer->SetSceneTransform(10 * m_WavingCount*0.5, 0, 1, 1);
+		break;
+	case 1:
+		m_Renderer->SetSceneTransform(0, 0, 1, 1);
+		break;
+	case 2:
+		m_Renderer->SetSceneTransform(-10 * m_WavingCount*0.5, 0, 1, 1);
+		break;
+	}
+
+	m_WavingCount -= 1;
 }
